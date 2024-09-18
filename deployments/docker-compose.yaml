@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   delivery_backend:
+    container_name: delivery_backend
     build:
       context: ..
       dockerfile: ./deployments/Dockerfile
