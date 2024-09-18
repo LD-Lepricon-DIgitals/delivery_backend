@@ -21,4 +21,4 @@
 # env file
 *.env
 
-
+.idea
