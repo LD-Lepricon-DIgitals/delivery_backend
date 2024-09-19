@@ -20,5 +20,5 @@ down:
 
 build_service:
 	@echo "Building service binary..."
-	cd cmd/app && set GOOS=linux&& set CGO_ENABLED=0&& go build -o $(BUILD_DIR)/$(BINARY_NAME) .
+	cd cmd/app && set GOOS=linux&& set CGO_ENABLED=0 && go build -o ../../$(BUILD_DIR)/$(BINARY_NAME) .
 	@echo "Binary built: $(BUILD_DIR)/$(BINARY_NAME)"
