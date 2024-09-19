@@ -11,3 +11,18 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+
+  db:
+    container_name: 'delivery_backend_db'
+    image: 'postgres:14.0-alpine'
+    ports:
+      - '5432:5432'
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=users
+    volumes:
+      - ../db-data/postgres/:/var/lib/postgresql/data/
