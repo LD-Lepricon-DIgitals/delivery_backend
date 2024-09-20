@@ -12,6 +12,7 @@ type Config struct {
 	DBUsername string
 	DBPassword string
 	DBHostname string
+	DBName     string
 	DBPort     string
 	SSLMode    string
 }
@@ -30,6 +31,7 @@ func NewConfig() *Config {
 		DBPassword: getEnv("DB_PASSWORD", ""),
 		DBHostname: getEnv("DB_HOSTNAME", "localhost"),
 		DBPort:     getEnv("DB_PORT", "5432"),
+		DBName:     getEnv("DB_NAME", "db"),
 		SSLMode:    getEnv("SSL_MODE", "disable"),
 	}
 

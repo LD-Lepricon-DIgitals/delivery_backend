@@ -1,6 +1,6 @@
-package service
+package db
 
-import "github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
+import "github.com/jmoiron/sqlx"
 
 type UserServices interface {
 }
@@ -16,7 +16,7 @@ type DishServices interface {
 
 type ReviewServices interface {
 }
-type Service struct {
+type Repository struct {
 	UserServices
 	WorkerServices
 	AdminServices
@@ -24,6 +24,6 @@ type Service struct {
 	ReviewServices
 }
 
-func NewService(repo *db.Repository) *Service {
-	return &Service{}
+func NewRepository(db *sqlx.DB) *Repository {
+	return &Repository{}
 }
