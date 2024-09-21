@@ -1,5 +1,3 @@
--- +goose Up
--- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS users
 (
     id                   uuid PRIMARY KEY,
@@ -34,7 +32,7 @@ CREATE TABLE IF NOT EXISTS workers_info
     worker_transport_category uuid,
     CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES workers (id) ON DELETE CASCADE,
     CONSTRAINT fk_worker_transport_category FOREIGN KEY (worker_transport_category) REFERENCES transport_categories (id) ON DELETE CASCADE
-    );
+);
 
 CREATE TABLE IF NOT EXISTS users_info
 (
@@ -44,7 +42,7 @@ CREATE TABLE IF NOT EXISTS users_info
     user_surname text,
     user_city    text NOT NULL,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-    );
+);
 
 CREATE TABLE IF NOT EXISTS user_addresses
 (
@@ -52,7 +50,7 @@ CREATE TABLE IF NOT EXISTS user_addresses
     user_address text NOT NULL,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT pk_user_address PRIMARY KEY (user_id, user_address)
-    );
+);
 
 CREATE TABLE IF NOT EXISTS restaurants
 (
@@ -75,7 +73,7 @@ CREATE TABLE IF NOT EXISTS reviews
     review_date   date DEFAULT CURRENT_DATE,
     rate          float NOT NULL,
     CONSTRAINT fk_restaurant_id FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON DELETE CASCADE
-    );
+);
 
 CREATE TABLE IF NOT EXISTS dish_categories
 (
@@ -96,7 +94,7 @@ CREATE TABLE IF NOT EXISTS dishes
     dish_category    uuid,
     CONSTRAINT fk_restaurant_id FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON DELETE CASCADE,
     CONSTRAINT fk_dish_category FOREIGN KEY (dish_category) REFERENCES dish_categories (id) ON DELETE CASCADE
-    );
+);
 
 CREATE TABLE IF NOT EXISTS orders
 (
@@ -108,7 +106,7 @@ CREATE TABLE IF NOT EXISTS orders
     CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_restaurant_id FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON DELETE CASCADE,
     CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES workers (id) ON DELETE CASCADE
-    );
+);
 
 CREATE TABLE IF NOT EXISTS order_dishes
 (
@@ -118,23 +116,3 @@ CREATE TABLE IF NOT EXISTS order_dishes
     CONSTRAINT fk_order_id FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
     CONSTRAINT fk_dish_id FOREIGN KEY (dish_id) REFERENCES dishes (id) ON DELETE CASCADE
 );
--- +goose StatementEnd
-
--- +goose Down
--- +goose StatementBegin
-DROP TABLE IF EXISTS order_dishes;
-DROP TABLE IF EXISTS orders;
-
-DROP TABLE IF EXISTS reviews;
-DROP TABLE IF EXISTS dishes;
-DROP TABLE IF EXISTS dish_categories;
-DROP TABLE IF EXISTS restaurants;
-
-DROP TABLE IF EXISTS workers_info;
-DROP TABLE IF EXISTS workers;
-DROP TABLE IF EXISTS transport_categories;
-
-DROP TABLE IF EXISTS user_addresses;
-DROP TABLE IF EXISTS users_info;
-DROP TABLE IF EXISTS users;
--- +goose StatementEnd

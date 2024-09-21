@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS order_dishes;
+DROP TABLE IF EXISTS orders;
+
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS dishes;
+DROP TABLE IF EXISTS dish_categories;
+DROP TABLE IF EXISTS restaurants;
+
+DROP TABLE IF EXISTS workers_info;
+DROP TABLE IF EXISTS workers;
+DROP TABLE IF EXISTS transport_categories;
+
+DROP TABLE IF EXISTS user_addresses;
+DROP TABLE IF EXISTS users_info;
+DROP TABLE IF EXISTS users;
