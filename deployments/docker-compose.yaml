@@ -24,5 +24,10 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=delivery_db
+    healthcheck:
+      test: [ "CMD", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - ../db-data/postgres/:/var/lib/postgresql/data/
