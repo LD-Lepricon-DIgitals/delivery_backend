@@ -15,6 +15,8 @@ type Config struct {
 	DBName     string
 	DBPort     string
 	SSLMode    string
+	Salt       string
+	SigningKey string
 }
 
 //TODO: define
@@ -33,12 +35,16 @@ func NewConfig() *Config {
 		DBPort:     getEnv("DB_PORT", "5432"),
 		DBName:     getEnv("DB_NAME", "db"),
 		SSLMode:    getEnv("SSL_MODE", "disable"),
+		Salt:       getEnv("SALT", ""),
+		SigningKey: getEnv("SIGNING_KEY", ""),
 	}
 
 	if cfg.DBPassword == "" {
 		log.Fatal("DB_PASSWORD environment variable is required")
 	}
-
+	if cfg.Salt == "" || cfg.SigningKey == "" {
+		log.Fatal("SALT or SIGNING_KEY environment variable is required")
+	}
 	return cfg
 }
 func getEnv(key, defaultValue string) string {

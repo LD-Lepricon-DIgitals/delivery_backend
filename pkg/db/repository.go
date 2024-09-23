@@ -3,6 +3,7 @@ package db
 import "github.com/jmoiron/sqlx"
 
 type UserServices interface {
+	GetId(username, password string) (int, error)
 }
 
 type WorkerServices interface {
@@ -25,5 +26,7 @@ type Repository struct {
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{}
+	return &Repository{
+		UserServices: NewUserService(db),
+	}
 }
