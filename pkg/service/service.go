@@ -5,8 +5,7 @@ import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
 
-type UserServices interface {
-}
+type UserServices interface{}
 
 type WorkerServices interface {
 }
