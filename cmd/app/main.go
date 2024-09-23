@@ -23,7 +23,7 @@ func main() {
 
 	repo := db.NewRepository(database) //repo will take db as an argument
 
-	services := service.NewService(repo)
+	services := service.NewService(repo,cfg)
 	handler := handlers.NewHandlers(services)
 
 	srv := server.NewServer(cfg, handler)
