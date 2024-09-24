@@ -10,7 +10,7 @@ type UserServices interface {
 	Create(email, login, password string) (int, error)
 	CheckIfExists(email string) (bool, error)
 	GetById(id int) (*models.User, error)
-	ChangeBio(id int, bio string) error
+	ChangeCity(id int, city string) error
 	ChangeLogin(id int, login string) error
 	ChangePassword(id int, password string) error
 	ChangeEmail(id int, email string) error
