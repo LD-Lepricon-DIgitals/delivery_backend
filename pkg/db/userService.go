@@ -100,3 +100,5 @@ func (u *UserSrv) ChangeEmail(id int, email string) error {
 	}
 	return nil
 }
+
+//TODO: DeleteUser
