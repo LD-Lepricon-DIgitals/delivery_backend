@@ -47,6 +47,7 @@ func (u *UserSrv) CheckIfExists(email string) (bool, error) {
 	return res == 1, nil
 }
 
+// TODO:GetById Fix
 func (u *UserSrv) GetById(id int) (*models.User, error) {
 	var user models.User
 	query := fmt.Sprintf("SELECT u.id, u.user_login, u.user_email, ui.user_phone, ui.user_name, ui.user_surname, ui.user_city FROM users u LEFT JOIN users_info ui ON u.id = ui.user_id WHERE u.id = $1;")

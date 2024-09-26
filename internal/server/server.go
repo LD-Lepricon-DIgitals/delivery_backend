@@ -45,8 +45,8 @@ func (s *Server) InitRoutes() {
 	auth.Post("/register", s.h.RegUser)
 
 	api := s.srv.Group("/api")
-	user := api.Group("/user") // TODO: add middleware
-	user.Post("/profile", s.h.GetUser)
+	user := api.Group("/user")         // TODO: add middleware
+	user.Post("/profile", s.h.GetUser) //TODO: get method + query params
 	user.Post("/change_city", s.h.ChangeUserCity)
 	user.Post("/change_email", s.h.ChangeUserEmail)
 	user.Post("/change_password", s.h.ChangeUserPassword)
