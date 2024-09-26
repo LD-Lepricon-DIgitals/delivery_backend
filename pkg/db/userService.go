@@ -1,7 +1,6 @@
 package db
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
@@ -20,7 +19,7 @@ func NewUserService(db *sqlx.DB) *UserSrv {
 
 func (u *UserSrv) Create(email, login, password string) (int, error) {
 	var id int
-	query := fmt.Sprintf("INSERT INTO users (email, login, password) VALUES ($1, $2, $3) RETURNING id;")
+	query := fmt.Sprintf("INSERT INTO users (user_email, user_login, user_hashed_password) VALUES ($1, $2, $3) RETURNING id;")
 	row := u.db.QueryRow(query, email, login, password)
 	if err := row.Scan(&id); err != nil {
 		return 0, errors.New("failed to create user")
@@ -30,7 +29,7 @@ func (u *UserSrv) Create(email, login, password string) (int, error) {
 
 func (u *UserSrv) GetId(login, password string) (int, error) {
 	var id int
-	query := fmt.Sprintf(`SELECT id FROM users WHERE user_login=$1 AND password=$2;`)
+	query := fmt.Sprintf(`SELECT id FROM users WHERE user_login=$1 AND user_hashed_password=$2;`)
 	row := u.db.QueryRow(query, login, password)
 	if err := row.Scan(&id); err != nil {
 		return 0, errors.New("failed to get user id")
@@ -121,13 +120,10 @@ func (u *UserSrv) DeleteUser(id int) error {
 
 func (u *UserSrv) GetUserPass(username string) (string, error) {
 	var password string
-	query := `SELECT user_hashed_password FROM users u WHERE user_login = $1;`
+	query := fmt.Sprintf("SELECT u.user_hashed_password FROM users AS u WHERE u.user_login=$1;")
 	row := u.db.QueryRow(query, username)
 
 	if err := row.Scan(&password); err != nil {
-		if err == sql.ErrNoRows {
-			return "", errors.New("user not found")
-		}
 		return "", errors.New("failed to get user password")
 	}
 

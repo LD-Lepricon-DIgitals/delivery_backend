@@ -9,7 +9,7 @@ type getUser struct {
 }
 
 func (h *Handlers) GetUser(ctx fiber.Ctx) error {
-	var payload getUser
+	payload := new(getUser)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -28,7 +28,7 @@ type regPayload struct {
 }
 
 func (h *Handlers) RegUser(ctx fiber.Ctx) error {
-	var payload regPayload
+	payload := new(regPayload)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -43,19 +43,19 @@ func (h *Handlers) RegUser(ctx fiber.Ctx) error {
 }
 
 type signInInput struct {
-	Username string `json:"username" binding:"required"`
+	Login    string `json:"login" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
 func (h *Handlers) LoginUser(ctx fiber.Ctx) error {
-	var payload signInInput
+	payload := new(signInInput)
 
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	token, err := h.services.AuthServices.CreateToken(payload.Username, payload.Password)
+	token, err := h.services.AuthServices.CreateToken(payload.Login, payload.Password)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -68,7 +68,7 @@ type changeCity struct {
 }
 
 func (h *Handlers) ChangeUserCity(ctx fiber.Ctx) error {
-	var payload changeCity
+	payload := new(changeCity)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -88,7 +88,7 @@ type changeLogin struct {
 }
 
 func (h *Handlers) ChangeUserLogin(ctx fiber.Ctx) error {
-	var payload changeLogin
+	payload := new(changeLogin)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -106,7 +106,7 @@ type changeEmail struct {
 }
 
 func (h *Handlers) ChangeUserEmail(ctx fiber.Ctx) error {
-	var payload changeEmail
+	payload := new(changeEmail)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -124,7 +124,7 @@ type changePhone struct {
 }
 
 func (h *Handlers) ChangeUserPhone(ctx fiber.Ctx) error {
-	var payload changePhone
+	payload := new(changePhone)
 	err := ctx.Bind().Body(payload)
 
 	if err != nil {
@@ -146,7 +146,7 @@ type changePassword struct {
 }
 
 func (h *Handlers) ChangeUserPassword(ctx fiber.Ctx) error {
-	var payload changePassword
+	payload := new(changePassword)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -163,7 +163,7 @@ type DeletePayload struct {
 }
 
 func (h *Handlers) DeleteUser(ctx fiber.Ctx) error {
-	var payload DeletePayload
+	payload := new(DeletePayload)
 	err := ctx.Bind().Body(payload)
 
 	if err != nil {
