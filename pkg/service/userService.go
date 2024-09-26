@@ -2,14 +2,15 @@ package service
 
 import (
 	"errors"
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
 
 type UserService struct {
-	repo db.Repository
+	repo *db.Repository
 }
 
-func NewUserService(repo db.Repository) *UserService {
+func NewUserService(repo *db.Repository) *UserService {
 	return &UserService{repo: repo}
 }
 
@@ -33,7 +34,7 @@ func (u *UserService) CheckIfExists(email string) (bool, error) {
 	return true, nil
 }
 
-func (u *UserService) DeleteUser(email string) error {
+func (u *UserService) DeleteUser(id int) error {
 	return nil //TODO: implement
 }
 
@@ -67,4 +68,11 @@ func (u *UserService) ChangeEmail(id int, email string) error {
 		return errors.New("Failed to change email")
 	}
 	return nil
+}
+func (u *UserService) GetById(id int) (*models.User, error) {
+	user, err := u.repo.GetById(id)
+	if err != nil {
+		return nil, errors.New("Failed to get user")
+	}
+	return user, nil
 }
