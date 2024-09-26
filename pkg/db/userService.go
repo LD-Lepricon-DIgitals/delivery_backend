@@ -101,4 +101,10 @@ func (u *UserSrv) ChangeEmail(id int, email string) error {
 	return nil
 }
 
-//TODO: DeleteUser
+func (u *UserSrv) DeleteUser(id int) error {
+	query := fmt.Sprintf("DELETE FROM users WHERE id=$1;")
+	if _, err := u.db.Exec(query, id); err != nil {
+		return errors.New("failed to delete user")
+	}
+	return nil
+}
