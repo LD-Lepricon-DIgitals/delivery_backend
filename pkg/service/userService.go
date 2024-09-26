@@ -17,7 +17,7 @@ func NewUserService(repo *db.Repository) *UserService {
 func (u *UserService) CreateUser(email, login, password string) (int, error) {
 	id, err := u.repo.Create(email, login, password)
 	if err != nil {
-		return 0, errors.New("Failed to create user")
+		return 0, errors.New("failed to create user")
 	}
 
 	return id, nil
@@ -26,22 +26,26 @@ func (u *UserService) CreateUser(email, login, password string) (int, error) {
 func (u *UserService) CheckIfExists(email string) (bool, error) {
 	ok, err := u.repo.CheckIfExists(email)
 	if err != nil {
-		return false, errors.New("Failed to check user")
+		return false, errors.New("failed to check user")
 	}
 	if !ok {
-		return false, errors.New("User does not exist")
+		return false, errors.New("user does not exist")
 	}
 	return true, nil
 }
 
 func (u *UserService) DeleteUser(id int) error {
-	return nil //TODO: implement
+	err := u.repo.DeleteUser(id)
+	if err != nil {
+		return errors.New("failed to delete user")
+	}
+	return nil
 }
 
 func (u *UserService) ChangeCity(id int, city string) error {
 	err := u.repo.ChangeCity(id, city)
 	if err != nil {
-		return errors.New("Failed to change city")
+		return errors.New("failed to change city")
 	}
 	return nil
 }
@@ -49,15 +53,25 @@ func (u *UserService) ChangeCity(id int, city string) error {
 func (u *UserService) ChangeLogin(id int, login string) error {
 	err := u.repo.ChangeLogin(id, login)
 	if err != nil {
-		return errors.New("Failed to change login")
+		return errors.New("failed to change login")
 	}
 	return nil
 }
 
-func (u *UserService) ChangePassword(id int, password string) error {
-	err := u.repo.ChangePassword(id, password)
+func (u *UserService) ChangePassword(id int, oldPassword, newPassword string) error {
+	user, err := u.repo.GetById(id)
+	pass, err := u.repo.GetUserPass(user.Login)
+
 	if err != nil {
-		return errors.New("Failed to change password")
+		return errors.New("failed to find user")
+	}
+
+	if oldPassword != pass {
+		return errors.New("invalid password")
+	}
+	err = u.repo.ChangePassword(id, newPassword)
+	if err != nil {
+		return errors.New("failed to change password")
 	}
 	return nil
 }
@@ -65,14 +79,22 @@ func (u *UserService) ChangePassword(id int, password string) error {
 func (u *UserService) ChangeEmail(id int, email string) error {
 	err := u.repo.ChangeEmail(id, email)
 	if err != nil {
-		return errors.New("Failed to change email")
+		return errors.New("failed to change email")
 	}
 	return nil
 }
 func (u *UserService) GetById(id int) (*models.User, error) {
 	user, err := u.repo.GetById(id)
 	if err != nil {
-		return nil, errors.New("Failed to get user")
+		return nil, errors.New("failed to get user")
 	}
 	return user, nil
+}
+
+func (u *UserService) ChangePhone(id int, phone string) error {
+	err := u.repo.ChangePhone(id, phone)
+	if err != nil {
+		return errors.New("failed to change user phone number")
+	}
+	return nil
 }
