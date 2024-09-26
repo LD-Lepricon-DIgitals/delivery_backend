@@ -24,7 +24,8 @@ func NewServer(config *config.Config, handlers *handlers.Handlers) *Server {
 
 func (s *Server) Run() {
 	s.srv = fiber.New(fiber.Config{
-		AppName: "Delivery app ver 1.0",
+		AppName:      "Delivery app ver 1.0",
+		ErrorHandler: handlers.CustomError,
 	})
 	s.srv.Use(logger.New())
 	s.srv.Use(cors.New(cors.Config{
@@ -50,7 +51,7 @@ func (s *Server) InitRoutes() error {
 	user.Post("/change_email", s.h.ChangeUserEmail)
 	user.Post("/change_password", s.h.ChangeUserPassword)
 	user.Post("/change_login", s.h.ChangeUserLogin)
-	user.Post("/change_credentials", s.h.ChangeUserCredentials)
+	user.Post("/delete", s.h.DeleteUser)
 	user.Post("/change_phone", s.h.ChangeUserPhone)
 
 	return nil

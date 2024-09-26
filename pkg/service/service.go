@@ -12,9 +12,10 @@ type UserServices interface {
 	DeleteUser(id int) error
 	ChangeCity(id int, city string) error
 	ChangeLogin(id int, login string) error
-	ChangePassword(id int, password string) error
+	ChangePassword(id int, oldPassword, newPassword string) error
 	ChangeEmail(id int, email string) error
 	GetById(id int) (*models.User, error)
+	ChangePhone(id int, phone string) error
 }
 
 type WorkerServices interface {

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
@@ -101,10 +102,34 @@ func (u *UserSrv) ChangeEmail(id int, email string) error {
 	return nil
 }
 
+func (u *UserSrv) ChangePhone(id int, phone string) error {
+	query := fmt.Sprintf("UPDATE users_info SET user_phone=$1 WHERE user_id=$2;")
+	_, err := u.db.Exec(query, phone, id)
+	if err != nil {
+		return errors.New("failed to change user phone number")
+	}
+	return nil
+}
+
 func (u *UserSrv) DeleteUser(id int) error {
 	query := fmt.Sprintf("DELETE FROM users WHERE id=$1;")
 	if _, err := u.db.Exec(query, id); err != nil {
 		return errors.New("failed to delete user")
 	}
 	return nil
+}
+
+func (u *UserSrv) GetUserPass(username string) (string, error) {
+	var password string
+	query := `SELECT user_hashed_password FROM users u WHERE user_login = $1;`
+	row := u.db.QueryRow(query, username)
+
+	if err := row.Scan(&password); err != nil {
+		if err == sql.ErrNoRows {
+			return "", errors.New("user not found")
+		}
+		return "", errors.New("failed to get user password")
+	}
+
+	return password, nil
 }

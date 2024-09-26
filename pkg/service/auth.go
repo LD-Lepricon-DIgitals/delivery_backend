@@ -28,10 +28,16 @@ func NewAuthService(cfg *config.Config, repository *db.Repository) *AuthService 
 }
 
 func (a *AuthService) CreateToken(username, password string) (string, error) {
-
+	pass, err := a.repo.GetUserPass(username)
+	if err != nil {
+		return "", errors.New("something went wrong")
+	}
+	if pass != password {
+		return "", errors.New("wrong password")
+	}
 	userId, err := a.repo.GetId(username, password)
 	if err != nil {
-		return "", errors.New("error getting user id")
+		return "", errors.New("user does not exist")
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		StandardClaims: jwt.StandardClaims{
@@ -46,7 +52,7 @@ func (a *AuthService) CreateToken(username, password string) (string, error) {
 func (a *AuthService) ParseToken(tokenString string) (int, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(a.cfg.SigningKey), nil
 	})
