@@ -34,11 +34,11 @@ func (s *Server) Run() {
 		AllowMethods: []string{"GET,POST,PATCH,DELETE"},
 	}))
 	log.Println("Starting server... Let`s Go :)")
+	s.InitRoutes()
 	log.Fatal(s.srv.Listen(":" + s.cfg.HostPort))
-	return
 }
 
-func (s *Server) InitRoutes() error {
+func (s *Server) InitRoutes() {
 
 	auth := s.srv.Group("/auth")
 	auth.Post("/login", s.h.LoginUser)
@@ -54,7 +54,6 @@ func (s *Server) InitRoutes() error {
 	user.Post("/delete", s.h.DeleteUser)
 	user.Post("/change_phone", s.h.ChangeUserPhone)
 
-	return nil
 }
 
 func (s *Server) Stop() {
