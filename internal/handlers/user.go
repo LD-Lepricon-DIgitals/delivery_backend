@@ -2,8 +2,17 @@ package handlers
 
 import "github.com/gofiber/fiber/v3"
 
+type GetUser struct {
+	id int `json:"id" binding:"required"`
+}
+
 func (h *Handlers) GetUser(ctx fiber.Ctx) error {
-	return nil
+	payload := new(GetUser)
+	err := ctx.Bind().Body(payload)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	user := h.services.UserServices.
 }
 
 func (h *Handlers) RegUser(ctx fiber.Ctx) error {
