@@ -63,18 +63,18 @@ func (h *Handlers) LoginUser(ctx fiber.Ctx) error {
 }
 
 type changeCity struct {
-	Id   int    `json:"id" binding:"required"`
-	City string `json:"city" binding:"required"`
+	City string `json:"city" binding:"required"` //TODO: test the concept
 }
 
 func (h *Handlers) ChangeUserCity(ctx fiber.Ctx) error {
+	userId := ctx.Locals("userId").(int)
 	payload := new(changeCity)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	err = h.services.ChangeCity(payload.Id, payload.City)
+	err = h.services.ChangeCity(userId, payload.City)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
