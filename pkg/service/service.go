@@ -10,6 +10,7 @@ type UserServices interface {
 	CreateUser(email, login, password string) (int, error)
 	CheckIfExists(email string) (bool, error)
 	DeleteUser(id int) error
+	AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error
 	ChangeCity(id int, city string) error
 	ChangeLogin(id int, login string) error
 	ChangePassword(id int, oldPassword, newPassword string) error
