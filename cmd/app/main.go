@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/config"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/handlers"
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/middleware"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/server"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/service"
@@ -23,10 +24,12 @@ func main() {
 
 	repo := db.NewRepository(database) //repo will take db as an argument
 
-	services := service.NewService(repo,cfg)
+	services := service.NewService(repo, cfg)
+
+	middlw := middleware.NewMiddleware(services)
 	handler := handlers.NewHandlers(services)
 
-	srv := server.NewServer(cfg, handler)
+	srv := server.NewServer(cfg, handler, middlw)
 
 	srv.Run() //server start
 
