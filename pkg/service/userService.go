@@ -17,7 +17,7 @@ func NewUserService(repo *db.Repository) *UserService {
 func (u *UserService) AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error {
 	err := u.repo.AddUserInfo(id, userPhone, userName, userSurname, userCity)
 	if err != nil {
-		errors.New("failed to add user info")
+		return errors.New("failed to add user info")
 	}
 	return nil
 }
