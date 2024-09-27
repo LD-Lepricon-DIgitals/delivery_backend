@@ -56,7 +56,6 @@ func (s *Server) InitRoutes() {
 	user.Post("/change_login", s.h.ChangeUserLogin)
 	user.Post("/delete", s.h.DeleteUser)
 	user.Post("/change_phone", s.h.ChangeUserPhone)
-
 }
 
 func (s *Server) Stop() {
