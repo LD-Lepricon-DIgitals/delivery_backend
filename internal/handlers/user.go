@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"log"
+	"strconv"
 )
 
 type getUser struct {
@@ -67,7 +69,8 @@ type changeCity struct {
 }
 
 func (h *Handlers) ChangeUserCity(ctx fiber.Ctx) error {
-	userId := ctx.Locals("userId").(int)
+	userId, _ := strconv.Atoi(ctx.Locals("userId").(string))
+	log.Println(userId)
 	payload := new(changeCity)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
@@ -194,6 +197,24 @@ func (h *Handlers) AddUserInfo(ctx fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	err = h.services.AddUserInfo(payload.Id, payload.UserPhone, payload.UserName, payload.UserSurname, payload.UserCity)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return ctx.SendStatus(fiber.StatusOK)
+}
+
+type AddUserAddressPayload struct {
+	Id      int    `json:"id" bindings:"required"`
+	Address string `json:"address" bindings:"required"`
+}
+
+func (h *Handlers) AddUserAddress(ctx fiber.Ctx) error {
+	payload := new(AddUserAddressPayload)
+	err := ctx.Bind().Body(&payload)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	err = h.services.AddUserAddress(payload.Id, payload.Address)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

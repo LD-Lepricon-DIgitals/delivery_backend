@@ -11,6 +11,3 @@ type User struct {
 	City         string   `json:"city"`
 	Addresses    []string `json:"addresses"`
 }
-
-type UserInfo struct {
-}

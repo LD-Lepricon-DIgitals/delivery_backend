@@ -18,6 +18,7 @@ type UserServices interface {
 	DeleteUser(id int) error
 	ChangePhone(id int, phone string) error
 	GetUserPass(username string) (string, error)
+	AddUserAddress(id int, address string) error
 }
 type WorkerServices interface {
 }

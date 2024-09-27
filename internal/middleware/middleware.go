@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/service"
 	"github.com/gofiber/fiber/v3"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -19,20 +20,18 @@ func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
 	headers := c.GetReqHeaders()
 
 	if headers["Authorization"] == nil {
-		c.Status(fiber.StatusUnauthorized)
-		return c.Redirect().To("/login")
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	headerParts := strings.Split(headers["Authorization"][0], " ")
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		c.Status(fiber.StatusUnauthorized)
-		return c.Redirect().To("/login")
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	userId, err := m.srv.AuthServices.ParseToken(headerParts[0])
+	userId, err := m.srv.AuthServices.ParseToken(headerParts[1])
 	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-		return c.Redirect().To("/login")
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
+	log.Println(userId)
 	c.Locals("userId", strconv.Itoa(userId))
 	return c.Next()
 }

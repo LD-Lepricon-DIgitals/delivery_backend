@@ -50,13 +50,15 @@ func (s *Server) InitRoutes() {
 	api := s.srv.Group("/api")
 	user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
 	user.Get("/profile::id", s.h.GetUser)            //TODO: get method + query params
-	user.Post("/change_city", s.h.ChangeUserCity)
-	user.Post("/change_email", s.h.ChangeUserEmail)
-	user.Post("/change_password", s.h.ChangeUserPassword)
-	user.Post("/change_login", s.h.ChangeUserLogin)
-	user.Post("/delete", s.h.DeleteUser)
-	user.Post("/change_phone", s.h.ChangeUserPhone)
+	user.Post("/add_info", s.h.AddUserInfo)
+	user.Post("/add_address", s.h.AddUserAddress)
+	user.Put("/change_city", s.h.ChangeUserCity)
+	user.Put("/change_email", s.h.ChangeUserEmail)
+	user.Put("/change_password", s.h.ChangeUserPassword)
+	user.Put("/change_login", s.h.ChangeUserLogin)
 	user.Delete("/delete", s.h.DeleteUser)
+	user.Put("/change_phone", s.h.ChangeUserPho
+
 }
 
 func (s *Server) Stop() {
