@@ -181,7 +181,7 @@ func (h *Handlers) DeleteUser(ctx fiber.Ctx) error {
 
 type UserInfoPayload struct {
 	Id          int    `json:"id" bindings:"required"`
-	UserPhone   string `json:"user_phone"` bindings:"required"`
+	UserPhone   string `json:"user_phone" bindings:"required"`
 	UserName    string `json:"user_name" bindings:"required"`
 	UserSurname string `json:"user_surname" bindings:"required"`
 	UserCity    string `json:"user_city" bindings:"required"`
