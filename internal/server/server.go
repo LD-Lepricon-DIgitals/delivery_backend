@@ -57,7 +57,8 @@ func (s *Server) InitRoutes() {
 	user.Put("/change_password", s.h.ChangeUserPassword)
 	user.Put("/change_login", s.h.ChangeUserLogin)
 	user.Delete("/delete", s.h.DeleteUser)
-	user.Put("/change_phone", s.h.ChangeUserPhone)
+	user.Put("/change_phone", s.h.ChangeUserPho
+
 }
 
 func (s *Server) Stop() {
