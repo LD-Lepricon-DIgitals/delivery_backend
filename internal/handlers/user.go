@@ -178,3 +178,24 @@ func (h *Handlers) DeleteUser(ctx fiber.Ctx) error {
 
 	return ctx.SendStatus(fiber.StatusOK)
 }
+
+type UserInfoPayload struct {
+	Id          int    `json:"id" bindings:"required"`
+	UserPhone   string `json:"user_phone"` bindings:"required"`
+	UserName    string `json:"user_name" bindings:"required"`
+	UserSurname string `json:"user_surname" bindings:"required"`
+	UserCity    string `json:"user_city" bindings:"required"`
+}
+
+func (h *Handlers) AddUserInfo(ctx fiber.Ctx) error {
+	payload := new(UserInfoPayload)
+	err := ctx.Bind().Body(&payload)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	err = h.services.AddUserInfo(payload.Id, payload.UserPhone, payload.UserName, payload.UserSurname, payload.UserCity)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return ctx.SendStatus(fiber.StatusOK)
+}
