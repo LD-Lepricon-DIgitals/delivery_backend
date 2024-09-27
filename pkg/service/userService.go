@@ -14,14 +14,6 @@ func NewUserService(repo *db.Repository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (u *UserService) AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error {
-	err := u.repo.AddUserInfo(id, userPhone, userName, userSurname, userCity)
-	if err != nil {
-		return errors.New("failed to add user info")
-	}
-	return nil
-}
-
 func (u *UserService) CreateUser(email, login, password string) (int, error) {
 	id, err := u.repo.Create(email, login, password)
 	if err != nil {
@@ -103,6 +95,22 @@ func (u *UserService) ChangePhone(id int, phone string) error {
 	err := u.repo.ChangePhone(id, phone)
 	if err != nil {
 		return errors.New("failed to change user phone number")
+	}
+	return nil
+}
+
+func (u *UserService) AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error {
+	err := u.repo.AddUserInfo(id, userPhone, userName, userSurname, userCity)
+	if err != nil {
+		return errors.New("failed to add user info")
+	}
+	return nil
+}
+
+func (u *UserService) AddUserAddress(id int, address string) error {
+	err := u.repo.AddUserAddress(id, address)
+	if err != nil {
+		return errors.New("failed to add user address")
 	}
 	return nil
 }

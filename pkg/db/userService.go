@@ -139,3 +139,12 @@ func (u *UserSrv) GetUserPass(username string) (string, error) {
 
 	return password, nil
 }
+
+func (u *UserSrv) AddUserAddress(id int, address string) error {
+	query := fmt.Sprintf("INSERT INTO user_addresses (user_id, user_address) VALUES ($1, $2);")
+	_, err := u.db.Exec(query, id, address)
+	if err != nil {
+		return errors.New("failed to add user address")
+	}
+	return nil
+}

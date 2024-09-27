@@ -17,6 +17,7 @@ type UserServices interface {
 	ChangeEmail(id int, email string) error
 	GetById(id int) (*models.User, error)
 	ChangePhone(id int, phone string) error
+	AddUserAddress(id int, address string) error
 }
 
 type WorkerServices interface {
