@@ -8,17 +8,18 @@ import (
 type UserServices interface {
 	GetId(login, password string) (int, error)
 	Create(email, login, password string) (int, error)
-	CheckIfExists(email string) (bool, error)
-	GetById(id int) (*models.User, error)
-	AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error
-	ChangeCity(id int, city string) error
-	ChangeLogin(id int, login string) error
+	CheckIfExists(login string) (bool, error)
+	GetUserInfo(id int) (*models.User, error)
 	ChangePassword(id int, password string) error
-	ChangeEmail(id int, email string) error
 	DeleteUser(id int) error
-	ChangePhone(id int, phone string) error
 	GetUserPass(username string) (string, error)
 	AddUserAddress(id int, address string) error
+	ChangeUserCredentials() error
+	/*	AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error*/
+	/*	ChangeCity(id int, city string) error*/
+	/*  ChangeLogin(id int, login string) error*/
+	/*	ChangeEmail(id int, email string) error*/
+	/*	ChangePhone(id int, phone string) error*/
 }
 type WorkerServices interface {
 }
