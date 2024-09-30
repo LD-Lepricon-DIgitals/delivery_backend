@@ -9,7 +9,7 @@ type UserServices interface {
 	GetId(login, password string) (int, error)
 	Create(email, login, password string) (int, error)
 	CheckIfExists(login string) (bool, error)
-	GetUserInfo(id int) (*models.User, error)
+	GetUserInfo(id int) (*models.UserInfo, error)
 	ChangePassword(id int, password string) error
 	DeleteUser(id int) error
 	GetUserPass(username string) (string, error)

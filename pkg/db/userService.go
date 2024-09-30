@@ -47,21 +47,54 @@ func (u *UserSrv) CheckIfExists(login string) (bool, error) {
 	return res == 1, nil
 }
 
-// TODO:GetById Fix
-func (u *UserSrv) GetUserInfo(id int) (*models.User, error) {
-	var user models.User
-	query := fmt.Sprintf("SELECT u.id, u.user_login, u.user_email, ui.user_phone, ui.user_name, ui.user_surname, ui.user_city FROM users u LEFT JOIN users_info ui ON u.id = ui.user_id WHERE u.id = $1;")
-	row := u.db.QueryRow(query, id)
-	if err := row.Scan(
-		&user.Id,
-		&user.Login,
-		&user.Email,
-		&user.Phone,
-		&user.Name,
-		&user.Surname,
-		&user.City,
-	); err != nil {
-		return nil, errors.New("failed to get user info")
+func (u *UserSrv) GetUserInfo(id int) (*models.UserInfo, error) {
+	var res1, res2 int
+	var user models.UserInfo
+	tx, err := u.db.Begin()
+	if err != nil {
+		return nil, errors.New("failed to start transaction")
+	}
+	defer tx.Rollback()
+	userInfoCountQuery := fmt.Sprintf("SELECT COUNT(1) FROM users_info WHERE user_id=$1;")
+	row := tx.QueryRow(userInfoCountQuery, id)
+	if err := row.Scan(&res1); err != nil {
+		return nil, errors.New("failed to check userInfo")
+	}
+	if res1 <= 0 {
+		return nil, errors.New("userInfo is empty")
+	}
+	userInfoQuery := fmt.Sprintf("SELECT u.user_name, u.user_surname, u.user_phone, u.user_city, us.user_email FROM users_info AS u INNER JOIN users AS us ON us.id=u.user_id WHERE u.user_id=$1;")
+	row = tx.QueryRow(userInfoQuery, id)
+	if err := row.Scan(&user.Name, &user.Surname, &user.Phone, &user.City, &user.Email); err != nil {
+		return nil, errors.New("failed to get userInfo")
+	}
+	userAddressesCountQuery := fmt.Sprintf("SELECT COUNT(1) FROM user_addresses WHERE user_id=$1;")
+	row = tx.QueryRow(userAddressesCountQuery, id)
+	if err := row.Scan(&res2); err != nil {
+		return nil, errors.New("failed to check userAddresses")
+	}
+	if res2 <= 0 {
+		return nil, errors.New("userAddresses is empty")
+	}
+	userAddressesQuery := fmt.Sprintf("SELECT user_address FROM user_addresses WHERE user_id=$1;")
+	rows, err := tx.Query(userAddressesQuery, id)
+	if err != nil {
+		return nil, errors.New("failed to get userAddresses")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var address string
+		if err := rows.Scan(&address); err != nil {
+			return nil, errors.New("failed to scan user address")
+		}
+		user.Addresses = append(user.Addresses, address)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, errors.New("error iterating over user addresses")
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, errors.New("failed to commit transaction")
 	}
 	return &user, nil
 }
