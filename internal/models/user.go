@@ -11,3 +11,12 @@ type User struct {
 	City         string   `json:"city"`
 	Addresses    []string `json:"addresses"`
 }
+
+type UserInfo struct {
+	Name      string   `json:"name"`
+	Surname   string   `json:"surname"`
+	Phone     string   `json:"phone"`
+	City      string   `json:"city"`
+	Email     string   `json:"email"`
+	Addresses []string `json:"addresses"`
+}
