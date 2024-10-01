@@ -35,13 +35,18 @@ func (h *Handlers) RegUser(ctx fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	id, err := h.services.UserServices.CreateUser(payload.Email, payload.Login, payload.Password)
+	_, err = h.services.UserServices.CreateUser(payload.Email, payload.Login, payload.Password)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.JSON(fiber.Map{"id": id})
+	token, err := h.services.AuthServices.CreateToken(payload.Login, payload.Password)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(fiber.Map{"token": token})
 }
 
 type signInInput struct {
