@@ -14,10 +14,10 @@ type UserServices interface {
 	DeleteUser(id int) error
 	GetUserPass(username string) (string, error)
 	AddUserAddress(id int, address string) error
-	ChangeUserCredentials() error
+	ChangeUserCredentials(id int, name, surname, phone, city string) error
+	ChangeLogin(id int, login string) error
 	/*	AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error*/
 	/*	ChangeCity(id int, city string) error*/
-	/*  ChangeLogin(id int, login string) error*/
 	/*	ChangeEmail(id int, email string) error*/
 	/*	ChangePhone(id int, phone string) error*/
 }

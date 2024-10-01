@@ -137,9 +137,36 @@ func (u *UserSrv) AddUserAddress(id int, address string) error {
 	return nil
 }
 
-func (u *UserSrv) ChangeUserCredentials() error {
-	//TODO implement me
-	panic("implement me")
+func (u *UserSrv) ChangeLogin(id int, login string) error {
+	query := fmt.Sprintf("UPDATE users SET user_login=$1 WHERE id=$2;")
+	_, err := u.db.Exec(query, login, id)
+	if err != nil {
+		return errors.New("failed to change user login")
+	}
+	return nil
+}
+
+func (u *UserSrv) ChangeUserCredentials(id int, name, surname, phone, city string) error {
+	var res int
+	checkCredentialsQuery := `SELECT COUNT(1) FROM users_info WHERE id=$1;`
+	insertUserCredentialsQuery := `INSERT INTO users_info (user_name, user_surname, user_phone, user_city) VALUES ($1,$2,$3,$4);`
+	updateUserCredentialsQuery := `UPDATE users_info AS u SET u.user_name=$1, u.user_surname=$2, u.user_phone=$3, u.user_city=$4 WHERE u.user_id=$5; `
+	row := u.db.QueryRow(checkCredentialsQuery, id)
+	if err := row.Scan(&res); err != nil {
+		return errors.New("failed to check userCredentials")
+	}
+	if res <= 0 {
+		_, err := u.db.Exec(insertUserCredentialsQuery, name, surname, phone, city)
+		if err != nil {
+			return errors.New("failed to add userInfo")
+		}
+	} else {
+		_, err := u.db.Exec(updateUserCredentialsQuery, name, surname, phone, city, id)
+		if err != nil {
+			return errors.New("failed to update userInfo")
+		}
+	}
+	return nil
 }
 
 /*func (u *UserSrv) ChangeCity(id int, city string) error {
@@ -150,16 +177,6 @@ func (u *UserSrv) ChangeUserCredentials() error {
 	}
 	return nil
 }*/
-
-/*func (u *UserSrv) ChangeLogin(id int, login string) error {
-	query := fmt.Sprintf("UPDATE users SET user_login=$1 WHERE id=$2;")
-	_, err := u.db.Exec(query, login, id)
-	if err != nil {
-		return errors.New("failed to change user login")
-	}
-	return nil
-}
-*/
 
 /*func (u *UserSrv) ChangeEmail(id int, email string) error {
 	query := fmt.Sprintf("UPDATE users SET user_email=$1 WHERE id=$2;")
