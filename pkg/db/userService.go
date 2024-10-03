@@ -169,6 +169,22 @@ func (u *UserSrv) ChangeUserCredentials(id int, name, surname, phone, city strin
 	return nil
 }
 
+func (u *UserSrv) IsCorrectPassword(id int, tryPassword string) (bool, error) {
+	var password string
+	query := fmt.Sprintf("SELECT u.user_hashed_password FROM users AS u WHERE u.id=$1;")
+	row := u.db.QueryRow(query, id)
+
+	if err := row.Scan(&password); err != nil {
+		return false, errors.New("error checking password")
+	}
+
+	if password != tryPassword {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 /*func (u *UserSrv) ChangeCity(id int, city string) error {
 	query := fmt.Sprintf("UPDATE users_info SET user_city = $1 WHERE user_id = $2;")
 	_, err := u.db.Exec(query, city, id)

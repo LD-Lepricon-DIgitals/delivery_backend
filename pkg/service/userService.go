@@ -59,15 +59,12 @@ func (u *UserService) ChangeLogin(id int, login string) error {
 }
 
 func (u *UserService) ChangePassword(id int, oldPassword, newPassword string) error {
-	user, err := u.repo.GetById(id)
-	pass, err := u.repo.GetUserPass(user.Login)
-
+	passwordIsCorrect, err := u.repo.IsCorrectPassword(id, oldPassword)
 	if err != nil {
-		return errors.New("failed to find user")
+		return err
 	}
-
-	if oldPassword != pass {
-		return errors.New("invalid password")
+	if !passwordIsCorrect {
+		return errors.New("password is incorrect")
 	}
 	err = u.repo.ChangePassword(id, newPassword)
 	if err != nil {
