@@ -6,17 +6,9 @@ import (
 	"strconv"
 )
 
-type getUser struct {
-	Id int `json:"id" binding:"required"`
-}
-
-func (h *Handlers) GetUser(ctx fiber.Ctx) error {
-	payload := new(getUser)
-	err := ctx.Bind().Body(payload)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	user, err := h.services.UserServices.GetById(payload.Id)
+func (h *Handlers) GetUserInfo(ctx fiber.Ctx) error {
+	userId, _ := strconv.Atoi(ctx.Locals("userId").(string))
+	user, err := h.services.UserServices.GetById(userId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -70,7 +62,7 @@ func (h *Handlers) LoginUser(ctx fiber.Ctx) error {
 }
 
 type changeCity struct {
-	City string `json:"city" binding:"required"` //TODO: test the concept
+	City string `json:"city" binding:"required"`
 }
 
 func (h *Handlers) ChangeUserCity(ctx fiber.Ctx) error {
@@ -91,17 +83,17 @@ func (h *Handlers) ChangeUserCity(ctx fiber.Ctx) error {
 }
 
 type changeLogin struct {
-	Id    int    `json:"id" binding:"required"`
 	Login string `json:"login" binding:"required"`
 }
 
 func (h *Handlers) ChangeUserLogin(ctx fiber.Ctx) error {
+	userId, _ := strconv.Atoi(ctx.Locals("userId").(string))
 	payload := new(changeLogin)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	err = h.services.ChangeLogin(payload.Id, payload.Login)
+	err = h.services.ChangeLogin(userId, payload.Login)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -109,17 +101,17 @@ func (h *Handlers) ChangeUserLogin(ctx fiber.Ctx) error {
 }
 
 type changeEmail struct {
-	Id    int    `json:"id" binding:"required"`
 	Email string `json:"email" binding:"required"`
 }
 
 func (h *Handlers) ChangeUserEmail(ctx fiber.Ctx) error {
+	userId, _ := strconv.Atoi(ctx.Locals("userId").(string))
 	payload := new(changeEmail)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	err = h.services.ChangeEmail(payload.Id, payload.Email)
+	err = h.services.ChangeEmail(userId, payload.Email)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -127,11 +119,11 @@ func (h *Handlers) ChangeUserEmail(ctx fiber.Ctx) error {
 }
 
 type changePhone struct {
-	Id    int    `json:"id" binding:"required"`
 	Phone string `json:"phone" binding:"required"`
 }
 
 func (h *Handlers) ChangeUserPhone(ctx fiber.Ctx) error {
+	userId, _ := strconv.Atoi(ctx.Locals("userId").(string))
 	payload := new(changePhone)
 	err := ctx.Bind().Body(payload)
 
@@ -139,7 +131,7 @@ func (h *Handlers) ChangeUserPhone(ctx fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	err = h.services.UserServices.ChangePhone(payload.Id, payload.Phone)
+	err = h.services.UserServices.ChangePhone(userId, payload.Phone)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -148,18 +140,18 @@ func (h *Handlers) ChangeUserPhone(ctx fiber.Ctx) error {
 }
 
 type changePassword struct {
-	Id  int    `json:"id" binding:"required"`
 	Old string `json:"old" binding:"required"`
 	New string `json:"new" binding:"required"`
 }
 
 func (h *Handlers) ChangeUserPassword(ctx fiber.Ctx) error {
+	userId, _ := strconv.Atoi(ctx.Locals("userId").(string))
 	payload := new(changePassword)
 	err := ctx.Bind().Body(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	err = h.services.UserServices.ChangePassword(payload.Id, payload.Old, payload.New)
+	err = h.services.UserServices.ChangePassword(userId, payload.Old, payload.New)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

@@ -16,6 +16,7 @@ type UserServices interface {
 	AddUserAddress(id int, address string) error
 	ChangeUserCredentials(id int, name, surname, phone, city string) error
 	ChangeLogin(id int, login string) error
+	IsCorrectPassword(id int, tryPassword string) (bool, error)
 	/*	AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error*/
 	/*	ChangeCity(id int, city string) error*/
 	/*	ChangeEmail(id int, email string) error*/
@@ -28,6 +29,7 @@ type AdminServices interface {
 }
 
 type DishServices interface {
+	GetDishes([]models.Dish, error)
 }
 
 type ReviewServices interface {
@@ -43,5 +45,6 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		UserServices: NewUserService(db),
+		DishServices: NewDishServices(db),
 	}
 }

@@ -49,7 +49,7 @@ func (s *Server) InitRoutes() {
 
 	api := s.srv.Group("/api")
 	user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
-	user.Get("/profile::id", s.h.GetUser)            //TODO: get method + query params
+	user.Get("/profile::id", s.h.GetUserInfo)        //TODO: get method + query params
 	user.Post("/add_info", s.h.AddUserInfo)
 	user.Post("/add_address", s.h.AddUserAddress)
 	user.Put("/change_city", s.h.ChangeUserCity)
