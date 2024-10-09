@@ -73,3 +73,11 @@ func (u *UserService) IsCorrectPassword(login, password string) (bool, error) {
 	}
 	return true, nil
 }
+
+func (u *UserService) ChangeUserCredentials(id int, login, name, surname, address string) error {
+	return nil
+}
+
+func (u *UserService) ChangePassword(id, password string) error {
+	return nil
+}
