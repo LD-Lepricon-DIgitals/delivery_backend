@@ -38,26 +38,17 @@ func (s *Server) Run() {
 	}))
 	log.Println("Starting server... Let`s Go :)")
 	s.InitRoutes()
-	log.Fatal(s.srv.Listen(":" + s.cfg.HostPort))
+	log.Fatal(s.srv.Listen(s.cfg.HostAddr + ":" + s.cfg.HostPort))
 }
 
 func (s *Server) InitRoutes() {
 
-	auth := s.srv.Group("/auth")
-	auth.Post("/login", s.h.LoginUser)
-	auth.Post("/register", s.h.RegUser)
+	//auth := s.srv.Group("/auth")
+	//auth.Post("/login", s.h.LoginUser)
+	//auth.Post("/register", s.h.RegUser)
 
-	api := s.srv.Group("/api")
-	user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
-	user.Get("/profile::id", s.h.GetUserInfo)        //TODO: get method + query params
-	user.Post("/add_info", s.h.AddUserInfo)
-	user.Post("/add_address", s.h.AddUserAddress)
-	user.Put("/change_city", s.h.ChangeUserCity)
-	user.Put("/change_email", s.h.ChangeUserEmail)
-	user.Put("/change_password", s.h.ChangeUserPassword)
-	user.Put("/change_login", s.h.ChangeUserLogin)
-	user.Delete("/delete", s.h.DeleteUser)
-	user.Put("/change_phone", s.h.ChangeUserPhone)
+	//api := s.srv.Group("/api")
+	//user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
 
 }
 

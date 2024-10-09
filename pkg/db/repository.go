@@ -6,21 +6,10 @@ import (
 )
 
 type UserServices interface {
-	GetId(login, password string) (int, error)
-	Create(email, login, password string) (int, error)
-	CheckIfExists(login string) (bool, error)
-	GetUserInfo(id int) (*models.UserInfo, error)
-	ChangePassword(id int, password string) error
-	DeleteUser(id int) error
-	GetUserPass(username string) (string, error)
-	AddUserAddress(id int, address string) error
-	ChangeUserCredentials(id int, name, surname, phone, city string) error
-	ChangeLogin(id int, login string) error
-	IsCorrectPassword(id int, tryPassword string) (bool, error)
-	/*	AddUserInfo(id int, userPhone, userName, userSurname, userCity string) error*/
-	/*	ChangeCity(id int, city string) error*/
-	/*	ChangeEmail(id int, email string) error*/
-	/*	ChangePhone(id int, phone string) error*/
+	CreateUser(login, name, surname, address, phoneNumber, password string) (int, error)
+	GetUserId(login string) (int, error)
+	IsCorrectPassword(login, password string) (bool, error)
+	IfUserExists(login string) (bool, error)
 }
 type WorkerServices interface {
 }
@@ -45,6 +34,6 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		UserServices: NewUserService(db),
-		DishServices: NewDishServices(db),
+		//DishServices: NewDishServices(db),
 	}
 }

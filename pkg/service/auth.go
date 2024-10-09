@@ -27,15 +27,16 @@ func NewAuthService(cfg *config.Config, repository *db.Repository) *AuthService 
 	return &AuthService{cfg: cfg, repo: repository}
 }
 
-func (a *AuthService) CreateToken(username, password string) (string, error) {
-	pass, err := a.repo.GetUserPass(username)
+func (a *AuthService) CreateToken(login, password string) (string, error) {
+	ok, err := a.repo.IfUserExists(login)
 	if err != nil {
-		return "", errors.New("something went wrong")
+		return "", err
 	}
-	if pass != password {
-		return "", errors.New("wrong password")
+	if !ok {
+		return "", errors.New("error creating token")
 	}
-	userId, err := a.repo.GetId(username, password)
+
+	userId, err := a.repo.GetId(login, password)
 	if err != nil {
 		return "", errors.New("user does not exist")
 	}

@@ -1,22 +1,14 @@
 package models
 
 type User struct {
-	Id           int      `json:"-" `
-	Login        string   `json:"login" binding:"required"`
-	Email        string   `json:"email" binding:"required"`
-	HashPassword string   `json:"password" binding:"required"`
-	Phone        string   `json:"phone"`
-	Name         string   `json:"name"`
-	Surname      string   `json:"surname"`
-	City         string   `json:"city"`
-	Addresses    []string `json:"addresses"`
+	Login    string `db:"user_login"`
+	Password string `db:"user_hashed_password"`
 }
 
 type UserInfo struct {
-	Name      string   `json:"name"`
-	Surname   string   `json:"surname"`
-	Phone     string   `json:"phone"`
-	City      string   `json:"city"`
-	Email     string   `json:"email"`
-	Addresses []string `json:"addresses"`
+	UserID  int    `db:"user_id"`
+	Phone   string `db:"user_phone"`
+	Name    string `db:"user_name"`
+	Surname string `db:"user_surname"`
+	Address string `db:"user_adress"`
 }
