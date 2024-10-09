@@ -74,10 +74,41 @@ func (u *UserService) IsCorrectPassword(login, password string) (bool, error) {
 	return true, nil
 }
 
-func (u *UserService) ChangeUserCredentials(id int, login, name, surname, address string) error {
+func (u *UserService) ChangeUserCredentials(id int, login, name, surname, address, phone string) error {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	_, err = tx.Exec("UPDATE users SET user_login = $1 WHERE id = $2", login, id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to insert into users table: %w", err)
+	}
+	_, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_adress = $3 WHERE user_id = $4", name, surname, address, id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to insert into users_info table: %w", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit changes: %w", err)
+	}
 	return nil
 }
 
 func (u *UserService) ChangePassword(id, password string) error {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	_, err = tx.Exec("UPDATE users SET user_hashed_password = $1 WHERE id = $2", password, id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to update user password: %w", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit changes: %w", err)
+	}
 	return nil
 }

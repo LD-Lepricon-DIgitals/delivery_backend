@@ -10,7 +10,7 @@ type UserServices interface {
 	GetUserId(login string) (int, error)
 	IsCorrectPassword(login, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
-	ChangeUserCredentials(id int, login, name, surname, address string) error
+	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
 	ChangePassword(id, password string) error //14
 	//TODO: ChangePhoto
 }
