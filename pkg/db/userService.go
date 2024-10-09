@@ -33,6 +33,7 @@ func (u *UserService) CreateUser(login, name, surname, address, phoneNumber, pas
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users_info table: %w", err)
 	}
+	tx.Commit()
 
 	log.Println(fmt.Sprintf("user %d created", userId))
 	return userId, nil
