@@ -9,6 +9,7 @@ import (
 // TODO: define Config struct
 type Config struct {
 	HostPort   string
+	HostAddr   string
 	DBUsername string
 	DBPassword string
 	DBHostname string
@@ -37,6 +38,7 @@ func NewConfig() *Config {
 		SSLMode:    getEnv("SSL_MODE", "disable"),
 		Salt:       getEnv("SALT", ""),
 		SigningKey: getEnv("SIGNING_KEY", ""),
+		HostAddr:   getEnv("HOST_ADDR", "0.0.0.0"),
 	}
 
 	if cfg.DBPassword == "" {

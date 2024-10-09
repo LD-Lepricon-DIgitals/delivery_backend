@@ -2,7 +2,6 @@ CREATE TABLE IF NOT EXISTS users
 (
     id                   serial PRIMARY KEY,
     user_login           text NOT NULL UNIQUE,
-    user_email           text NOT NULL UNIQUE,
     user_hashed_password text NOT NULL
 );
 
@@ -11,7 +10,6 @@ CREATE TABLE IF NOT EXISTS workers
 (
     id                     serial PRIMARY KEY,
     worker_login           text NOT NULL UNIQUE,
-    worker_email           text NOT NULL UNIQUE,
     worker_hashed_password text NOT NULL
 );
 
