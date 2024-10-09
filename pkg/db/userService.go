@@ -80,16 +80,33 @@ func (u *UserService) ChangeUserCredentials(id int, login, name, surname, addres
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	_, err = tx.Exec("UPDATE users SET user_login = $1 WHERE id = $2", login, id)
+
+	//Updating users
+	res, err := tx.Exec("UPDATE users SET user_login = $1 WHERE id = $2", login, id)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to insert into users table: %w", err)
 	}
-	_, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_adress = $3 WHERE user_id = $4", name, surname, address, id)
+	affect, _ := res.RowsAffected()
+	if affect == 0 {
+		tx.Rollback()
+		return fmt.Errorf("user %d not found", id)
+	}
+
+	//Updating users_info
+	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_adress = $3 WHERE user_id = $4", name, surname, address, id)
 	if err != nil {
+
 		tx.Rollback()
 		return fmt.Errorf("failed to insert into users_info table: %w", err)
 	}
+	//Affected rows checking
+	affect, _ = res.RowsAffected()
+	if affect == 0 {
+		tx.Rollback()
+		return fmt.Errorf("user %d not found", id)
+	}
+	//Commit transaction
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("failed to commit changes: %w", err)
