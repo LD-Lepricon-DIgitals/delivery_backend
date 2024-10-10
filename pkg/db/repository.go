@@ -21,7 +21,11 @@ type AdminServices interface {
 }
 
 type DishServices interface {
+	AddDish(name string, price, weight float64, description, photo string) error
 	GetDishes([]models.Dish, error)
+	DeleteDish(id int) error
+	ChangeDish(name string, price, weight float64, description, photo string)
+	GetDishByCategory(category string)
 }
 
 type ReviewServices interface {

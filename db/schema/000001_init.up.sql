@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS workers_info
     worker_phone              text UNIQUE,
     worker_name               text NOT NULL,
     worker_surname            text NOT NULL,
-    CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES workers (id) ON DELETE CASCADE,
+    CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES workers (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS users_info
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS users_info
     user_phone   text UNIQUE NOT NULL,
     user_name    text NOT NULL,
     user_surname text NOT NULL,
-    user_adress    text NOT NULL,
+    user_address    text NOT NULL,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
