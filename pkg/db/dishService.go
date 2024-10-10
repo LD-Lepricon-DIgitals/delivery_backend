@@ -7,15 +7,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type DishServ struct {
+type DishService struct {
 	db *sqlx.DB
 }
 
-func NewDishServices(db *sqlx.DB) *DishServ {
-	return &DishServ{db: db}
+func NewDishServices(db *sqlx.DB) *DishService {
+	return &DishService{db: db}
 }
 
-func (d *DishServ) GetAll() ([]models.Dish, error) {
+func (d *DishService) GetAll() ([]models.Dish, error) {
 	query := fmt.Sprintf("SELECT id, dish_name, dish_description, dish_price, dish_weight, dish_photo, dish_rating FROM dishes")
 	rows, err := d.db.Query(query)
 	if err != nil {
@@ -33,4 +33,17 @@ func (d *DishServ) GetAll() ([]models.Dish, error) {
 	}
 
 	return dishes, nil
+}
+func (d *DishService) AddDish(name string, price, weight float64, description, photo string) error {
+	return nil
+}
+
+func (d *DishService) DeleteDish(id int) error { return nil }
+
+func (d *DishService) ChangeDish(name string, price, weight float64, description, photo string) error {
+	return nil
+}
+
+func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error) {
+	return nil, nil
 }
