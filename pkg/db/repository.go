@@ -22,10 +22,10 @@ type AdminServices interface {
 
 type DishServices interface {
 	AddDish(name string, price, weight float64, description, photo string) error
-	GetDishes([]models.Dish, error)
+	GetDishes() (map[int]models.Dish, error)
 	DeleteDish(id int) error
 	ChangeDish(name string, price, weight float64, description, photo string) error
-	GetDishesByCategory(category string) ([]models.Dish, error)
+	GetDishesByCategory(category string) (map[int]models.Dish, error)
 }
 
 type ReviewServices interface {
@@ -41,6 +41,6 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		UserServices: NewUserService(db),
-		//DishServices: NewDishServices(db),
+		DishServices: NewDishService(db),
 	}
 }

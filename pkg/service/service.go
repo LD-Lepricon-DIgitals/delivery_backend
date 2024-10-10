@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/config"
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
 
@@ -19,7 +20,11 @@ type AdminServices interface {
 }
 
 type DishServices interface {
-	GetDishes() map[int]string
+	GetDishes() map[int]models.Dish
+	AddDish(name string, price, weight float64, description, photo string) error
+	DeleteDish(id int) error
+	ChangeDish(name string, price, weight float64, description, photo string) error
+	GetDishesByCategory(category string) (map[int]models.Dish, error)
 }
 
 type ReviewServices interface {
@@ -43,5 +48,6 @@ func NewService(repo *db.Repository, cfg *config.Config) *Service {
 	return &Service{
 		AuthServices: NewAuthService(cfg, repo),
 		UserServices: NewUserService(repo),
+		DishServices: NewDishService(repo),
 	}
 }

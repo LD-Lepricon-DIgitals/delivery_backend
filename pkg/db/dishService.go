@@ -1,8 +1,6 @@
 package db
 
 import (
-	"errors"
-	"fmt"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -11,11 +9,11 @@ type DishService struct {
 	db *sqlx.DB
 }
 
-func NewDishServices(db *sqlx.DB) *DishService {
+func NewDishService(db *sqlx.DB) *DishService {
 	return &DishService{db: db}
 }
 
-func (d *DishService) GetAll() ([]models.Dish, error) {
+/*func (d *DishService) GetAll() ([]models.Dish, error) {
 	query := fmt.Sprintf("SELECT id, dish_name, dish_description, dish_price, dish_weight, dish_photo, dish_rating FROM dishes")
 	rows, err := d.db.Query(query)
 	if err != nil {
@@ -33,7 +31,13 @@ func (d *DishService) GetAll() ([]models.Dish, error) {
 	}
 
 	return dishes, nil
+}*/
+
+func (d *DishService) GetDishes() (map[int]models.Dish, error) {
+	//TODO implement me
+	panic("implement me")
 }
+
 func (d *DishService) AddDish(name string, price, weight float64, description, photo string) error {
 	return nil
 }
@@ -44,6 +48,6 @@ func (d *DishService) ChangeDish(name string, price, weight float64, description
 	return nil
 }
 
-func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error) {
+func (d *DishService) GetDishesByCategory(category string) (map[int]models.Dish, error) {
 	return nil, nil
 }
