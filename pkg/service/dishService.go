@@ -15,27 +15,42 @@ func NewDishService(repo *db.Repository) *DishService {
 	}
 }
 
-func (d DishService) GetDishes() map[int]models.Dish {
-	//TODO implement me
-	panic("implement me")
+func (d DishService) GetDishes() ([]models.Dish, error) {
+	dishes, err := d.repo.GetDishes()
+	if err != nil {
+		return nil, err
+	}
+	return dishes, nil
 }
 
 func (d DishService) AddDish(name string, price, weight float64, description, photo string) error {
-	//TODO implement me
-	panic("implement me")
+	err := d.repo.AddDish(name, price, weight, description, photo)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (d DishService) DeleteDish(id int) error {
-	//TODO implement me
-	panic("implement me")
+	err := d.repo.DeleteDish(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (d DishService) ChangeDish(name string, price, weight float64, description, photo string) error {
-	//TODO implement me
-	panic("implement me")
+func (d DishService) ChangeDish(id int, name string, price, weight float64, description, photo string) error {
+	err := d.repo.ChangeDish(id, name, price, weight, description, photo)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (d DishService) GetDishesByCategory(category string) (map[int]models.Dish, error) {
-	//TODO implement me
-	panic("implement me")
+func (d DishService) GetDishesByCategory(category string) ([]models.Dish, error) {
+	dishes, err := d.repo.GetDishesByCategory(category)
+	if err != nil {
+		return nil, err
+	}
+	return dishes, nil
 }
