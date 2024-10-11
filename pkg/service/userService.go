@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
 
@@ -26,15 +27,15 @@ func (u *UserService) GetUserId(login string) (int, error) {
 	}
 	return userId, nil
 }
-func (u *UserService) IsCorrectPassword(login, password string) (bool, error) {
-	correctPassword, err := u.repo.IsCorrectPassword(login, password)
+func (u *UserService) IsCorrectPassword(id int, password string) (bool, error) {
+	correctPassword, err := u.repo.IsCorrectPassword(id, password)
 	if err != nil {
 		return false, err
 	}
 	return correctPassword, nil
 }
-func (u *UserService) IfUserExists(username string) (bool, error) {
-	exists, err := u.repo.IfUserExists(username)
+func (u *UserService) IfUserExists(login string) (bool, error) {
+	exists, err := u.repo.IfUserExists(login)
 	if err != nil {
 		return false, err
 	}
@@ -49,10 +50,19 @@ func (u *UserService) ChangeUserCredentials(id int, login, name, surname, addres
 	return nil
 }
 
-func (u *UserService) ChangePassword(id int, password string) error {
-	user
-	ok, err := u.IsCorrectPassword(id, password)
-	err := u.repo.ChangePassword(id, password)
+func (u *UserService) ChangePassword(login string, password string) error {
+	userId, err := u.GetUserId(login)
+	if err != nil {
+		return err
+	}
+	ok, err := u.IsCorrectPassword(userId, password)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("invalid password")
+	}
+	err = u.repo.ChangePassword(userId, password)
 	if err != nil {
 		return err
 	}
