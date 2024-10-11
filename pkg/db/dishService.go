@@ -86,3 +86,7 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 	}
 	return dishes, nil
 }
+
+/*func (d *DishService) GetDishById(id int) (models.Dish, error) {
+	return nil, nil
+}*/
