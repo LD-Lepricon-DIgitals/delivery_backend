@@ -8,10 +8,11 @@ import (
 type UserServices interface {
 	CreateUser(login, name, surname, address, phoneNumber, password string) (int, error)
 	GetUserId(login string) (int, error)
-	IsCorrectPassword(login, password string) (bool, error)
+	IsCorrectPassword(id int, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
-	ChangeUserCredentials(id int, login, name, surname, address string) error
-	ChangePassword(id, password string) error //14
+	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
+	ChangePassword(id int, password string) error //14
+	DeleteUser(id int) error
 	//TODO: ChangePhoto
 }
 type WorkerServices interface {

@@ -33,6 +33,7 @@ func (u *UserService) CreateUser(login, name, surname, address, phoneNumber, pas
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users_info table: %w", err)
 	}
+	tx.Commit()
 
 	log.Println(fmt.Sprintf("user %d created", userId))
 	return userId, nil
@@ -62,22 +63,92 @@ func (u *UserService) IfUserExists(login string) (bool, error) {
 	return true, nil
 }
 
-func (u *UserService) IsCorrectPassword(login, password string) (bool, error) {
-	var userId int
-	err := u.db.Get(&userId, "SELECT id FROM users WHERE user_login = $1 AND user_hashed_password=$2", login, password)
+func (u *UserService) IsCorrectPassword(id int, passwordToCheck string) (bool, error) {
+	var password string
+	err := u.db.Get(&password, "SELECT user_hashed_password FROM users WHERE id = $1", id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, nil
-		}
 		return false, fmt.Errorf("error checking password: %w", err)
+	}
+	if password != passwordToCheck {
+		return false, nil
 	}
 	return true, nil
 }
 
-func (u *UserService) ChangeUserCredentials(id int, login, name, surname, address string) error {
+func (u *UserService) ChangeUserCredentials(id int, login, name, surname, address, phone string) error {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	//Updating users
+	res, err := tx.Exec("UPDATE users SET user_login = $1 WHERE id = $2", login, id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to insert into users table: %w", err)
+	}
+	affect, _ := res.RowsAffected()
+	if affect == 0 {
+		tx.Rollback()
+		return fmt.Errorf("user %d not found", id)
+	}
+
+	//Updating users_info
+	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_adress = $3 WHERE user_id = $4", name, surname, address, id)
+	if err != nil {
+
+		tx.Rollback()
+		return fmt.Errorf("failed to insert into users_info table: %w", err)
+	}
+	//Affected rows checking
+	affect, _ = res.RowsAffected()
+	if affect == 0 {
+		tx.Rollback()
+		return fmt.Errorf("user %d not found", id)
+	}
+	//Commit transaction
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit changes: %w", err)
+	}
 	return nil
 }
 
-func (u *UserService) ChangePassword(id, password string) error {
+func (u *UserService) ChangePassword(id int, password string) error {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	_, err = tx.Exec("UPDATE users SET user_hashed_password = $1 WHERE id = $2", password, id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to update user password: %w", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit changes: %w", err)
+	}
+	return nil
+}
+
+func (u *UserService) DeleteUser(id int) error {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	_, err = tx.Exec("DELETE FROM users WHERE id = $1", id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	_, err = tx.Exec("DELETE FROM users_info WHERE user_id = $1", id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit user deletion: %w", err)
+	}
 	return nil
 }
