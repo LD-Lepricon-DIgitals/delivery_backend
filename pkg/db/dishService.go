@@ -87,6 +87,12 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 	return dishes, nil
 }
 
-/*func (d *DishService) GetDishById(id int) (models.Dish, error) {
-	return nil, nil
-}*/
+func (d *DishService) GetDishById(id int) (models.Dish, error) {
+	var dish models.Dish
+	query := fmt.Sprintf("SELECT * FROM dishes WHERE id=$1;")
+	row := d.db.QueryRow(query, id)
+	if err := row.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating); err != nil {
+		return dish, errors.New("Error getting dish by id: " + err.Error())
+	}
+	return dish, nil
+}

@@ -55,10 +55,10 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 	return dishes, nil
 }
 
-/*func (d *DishService) GetDishesById(id int) (models.Dish, error) {
+func (d *DishService) GetDishById(id int) (models.Dish, error) {
 	dish, err := d.repo.GetDishById(id)
 	if err != nil {
-		return nil, err
+		return dish, nil
 	}
-	return dish, nil
-}*/
+	return dish, err
+}
