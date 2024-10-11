@@ -16,12 +16,13 @@ func NewDishService(db *sqlx.DB) *DishService {
 }
 
 func (d *DishService) GetDishes() ([]models.Dish, error) {
+	var dishes []models.Dish
 	query := fmt.Sprintf("SELECT id, dish_name, dish_description, dish_price, dish_weight, dish_photo, dish_rating FROM dishes")
 	rows, err := d.db.Query(query)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Error getting dishes: %s", err))
 	}
-	var dishes []models.Dish
+	defer rows.Close()
 
 	for rows.Next() {
 		var dish models.Dish
@@ -30,6 +31,9 @@ func (d *DishService) GetDishes() ([]models.Dish, error) {
 			return nil, errors.New("Error getting dishes: " + err.Error())
 		}
 		dishes = append(dishes, dish)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, errors.New("Error iterating rows: " + err.Error())
 	}
 	return dishes, nil
 }
@@ -76,6 +80,8 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 	if err != nil {
 		return nil, errors.New("Error querying dishes: " + err.Error())
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var dish models.Dish
 		err := rows.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating)
@@ -83,6 +89,9 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 			return nil, errors.New("Error getting dishes: " + err.Error())
 		}
 		dishes = append(dishes, dish)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, errors.New("Error iterating rows: " + err.Error())
 	}
 	return dishes, nil
 }
@@ -95,4 +104,26 @@ func (d *DishService) GetDishById(id int) (models.Dish, error) {
 		return dish, errors.New("Error getting dish by id: " + err.Error())
 	}
 	return dish, nil
+}
+
+func (d *DishService) SearchByName(name string) ([]models.Dish, error) {
+	var dishes []models.Dish
+	query := fmt.Sprintf("SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_categories = dish_category.id WHERE dishes.dish_name ILIKE $1;")
+	rows, err := d.db.Query(query, "%"+name+"%")
+	if err != nil {
+		return nil, errors.New("Error getting dishes by name: " + err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var dish models.Dish
+		if err := rows.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating); err != nil {
+			return nil, errors.New("Error getting values from rows: " + err.Error())
+		}
+		dishes = append(dishes, dish)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, errors.New("Error iterating rows: " + err.Error())
+	}
+	return dishes, nil
 }
