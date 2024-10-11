@@ -36,7 +36,7 @@ func (a *AuthService) CreateToken(login, password string) (string, error) {
 		return "", errors.New("error creating token")
 	}
 
-	userId, err := a.repo.GetId(login, password)
+	userId, err := a.repo.GetUserId(login)
 	if err != nil {
 		return "", errors.New("user does not exist")
 	}

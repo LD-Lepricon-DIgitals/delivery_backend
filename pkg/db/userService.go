@@ -63,14 +63,14 @@ func (u *UserService) IfUserExists(login string) (bool, error) {
 	return true, nil
 }
 
-func (u *UserService) IsCorrectPassword(login, password string) (bool, error) {
-	var userId int
-	err := u.db.Get(&userId, "SELECT id FROM users WHERE user_login = $1 AND user_hashed_password=$2", login, password)
+func (u *UserService) IsCorrectPassword(id int, passwordToCheck string) (bool, error) {
+	var password string
+	err := u.db.Get(&password, "SELECT user_hashed_password FROM users WHERE id = $1", id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, nil
-		}
 		return false, fmt.Errorf("error checking password: %w", err)
+	}
+	if password != passwordToCheck {
+		return false, nil
 	}
 	return true, nil
 }
@@ -114,7 +114,7 @@ func (u *UserService) ChangeUserCredentials(id int, login, name, surname, addres
 	return nil
 }
 
-func (u *UserService) ChangePassword(id, password string) error {
+func (u *UserService) ChangePassword(id int, password string) error {
 	tx, err := u.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
@@ -127,6 +127,28 @@ func (u *UserService) ChangePassword(id, password string) error {
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("failed to commit changes: %w", err)
+	}
+	return nil
+}
+
+func (u *UserService) DeleteUser(id int) error {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	_, err = tx.Exec("DELETE FROM users WHERE id = $1", id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	_, err = tx.Exec("DELETE FROM users_info WHERE user_id = $1", id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit user deletion: %w", err)
 	}
 	return nil
 }
