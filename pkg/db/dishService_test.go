@@ -1,6 +1,7 @@
 package db_test
 
 import (
+	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	dbServ "github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 	"github.com/jmoiron/sqlx"
@@ -74,13 +75,53 @@ func TestDishService_DeleteDish(t *testing.T) {
 	sqlxDB := sqlx.NewDb(db, "sqlmock")
 	dishService := dbServ.NewDishService(sqlxDB)
 
-	mock.ExpectExec("DELETE FROM dishes WHERE id=\\$1;").
-		WithArgs(1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+	type args struct {
+		id int
+	}
+	type mockBehavior func(args args)
 
-	err = dishService.DeleteDish(1)
-	assert.NoError(t, err)
-
-	err = mock.ExpectationsWereMet()
-	assert.NoError(t, err)
+	testTable := []struct {
+		name         string
+		args         args
+		mockBehavior mockBehavior
+		wantError    bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				id: 1,
+			},
+			mockBehavior: func(args args) {
+				mock.ExpectExec("DELETE FROM dishes WHERE id=\\$1;").
+					WithArgs(args.id).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantError: false,
+		},
+		{
+			name: "Args without id",
+			args: args{
+				id: 1,
+			},
+			mockBehavior: func(args args) {
+				mock.ExpectExec("DELETE FROM dishes WHERE id=\\$1;").
+					WithArgs().
+					WillReturnError(errors.New("no Id in args"))
+			},
+			wantError: true,
+		},
+	}
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehavior(testCase.args)
+			err := dishService.DeleteDish(testCase.args.id)
+			if testCase.wantError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				err = mock.ExpectationsWereMet()
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
