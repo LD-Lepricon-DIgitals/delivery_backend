@@ -28,7 +28,7 @@ type DishServices interface {
 	ChangeDish(id int, name string, price, weight float64, description, photo string) error
 	GetDishesByCategory(category string) ([]models.Dish, error)
 	GetDishById(id int) (models.Dish, error)
-	//TODO: GetDishById, SearchByName
+	SearchByName(name string) ([]models.Dish, error)
 }
 
 type ReviewServices interface {

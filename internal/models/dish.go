@@ -8,4 +8,5 @@ type Dish struct {
 	Weight      float64 `json:"dish_weight" binding:"required"`
 	PhotoUrl    string  `json:"dish_photo_url" binding:"required"`
 	Rating      int     `json:"dish_rating"`
+	Category    string  `json:"dish_category"`
 }
