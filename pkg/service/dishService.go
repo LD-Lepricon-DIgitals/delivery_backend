@@ -23,12 +23,12 @@ func (d *DishService) GetDishes() ([]models.Dish, error) {
 	return dishes, nil
 }
 
-func (d *DishService) AddDish(name string, price, weight float64, description, photo string) error {
-	err := d.repo.AddDish(name, price, weight, description, photo)
+func (d *DishService) AddDish(name string, price, weight float64, description, photo string) (int, error) {
+	id, err := d.repo.AddDish(name, price, weight, description, photo)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 func (d *DishService) DeleteDish(id int) error {

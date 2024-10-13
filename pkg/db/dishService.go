@@ -40,20 +40,28 @@ func (d *DishService) GetDishes() ([]models.Dish, error) {
 	return dishes, nil
 }
 
-func (d *DishService) AddDish(name string, price, weight float64, description, photo string) error {
-	query := "INSERT INTO dishes (dish_name, dish_price, dish_weight, dish_description, dish_photo) VALUES ($1, $2, $3, $4, $5);"
-	_, err := d.db.Exec(query, name, price, weight, description, photo)
-	if err != nil {
-		return errors.New("Error adding dish: " + err.Error())
+func (d *DishService) AddDish(name string, price, weight float64, description, photo string) (int, error) {
+	var id int
+	query := "INSERT INTO dishes (dish_name, dish_price, dish_weight, dish_description, dish_photo) VALUES ($1, $2, $3, $4, $5) RETURNING id;"
+	row := d.db.QueryRow(query, name, price, weight, description, photo)
+	if err := row.Scan(&id); err != nil {
+		return 0, errors.New("Error adding dish: " + err.Error())
 	}
-	return nil
+	return id, nil
 }
 
 func (d *DishService) DeleteDish(id int) error {
 	query := "DELETE FROM dishes WHERE id=$1;"
-	_, err := d.db.Exec(query, id)
+	res, err := d.db.Exec(query, id)
 	if err != nil {
 		return errors.New("Error deleting dish: " + err.Error())
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return errors.New("Error after affecting rows: " + err.Error())
+	}
+	if rowsAffected == 0 {
+		return errors.New("no rows affected")
 	}
 	return nil
 }
