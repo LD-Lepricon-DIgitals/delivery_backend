@@ -75,10 +75,15 @@ func (d *DishService) ChangeDish(id int, name string, price, weight float64, des
 		return errors.New("Error checking dish count: " + err.Error())
 	}
 	if res == 1 {
-		_, err := d.db.Exec(updateQuery, name, price, weight, description, photo, id)
+		res, err := d.db.Exec(updateQuery, name, price, weight, description, photo, id)
+		rowsAffected, err := res.RowsAffected()
 		if err != nil {
-			return errors.New("Error updating dish: " + err.Error())
+			return errors.New("Error after affecting rows: " + err.Error())
 		}
+		if rowsAffected == 0 {
+			return errors.New("no rows affected")
+		}
+		return nil
 	}
 	return nil
 }
