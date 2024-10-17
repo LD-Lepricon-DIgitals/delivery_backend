@@ -152,3 +152,15 @@ func (u *UserService) DeleteUser(id int) error {
 	}
 	return nil
 }
+
+func (u *UserService) IsCorrectPasswordId(id int, passwordToCheck string) (bool, error) {
+	var password string
+	err := u.db.Get(&password, "SELECT user_hashed_password FROM users WHERE id = $1", id)
+	if err != nil {
+		return false, fmt.Errorf("error checking password: %w", err)
+	}
+	if password != passwordToCheck {
+		return false, nil
+	}
+	return true, nil
+}

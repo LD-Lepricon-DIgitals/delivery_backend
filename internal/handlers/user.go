@@ -78,3 +78,54 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	c.Cookie(&cookie)
 	return c.SendStatus(fiber.StatusAccepted)
 }
+
+func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
+	userId := c.Locals("userId").(int)
+	var payload models.UserInfo
+	err := c.Bind().Body(&payload)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	err = h.services.ChangeUserCredentials(userId, payload.UserLogin, payload.Name, payload.Surname, payload.Address, payload.Phone)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.SendStatus(fiber.StatusOK)
+}
+
+type ChangePasswordPayload struct {
+	OldPassword string `json:"old_password" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
+func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
+	userId := c.Locals("userId").(int)
+	var payload ChangePasswordPayload
+	err := c.Bind().Body(&payload)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	if ok, err := h.services.IsCorrectPasswordId(userId, payload.OldPassword); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	} else if !ok {
+		return (c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid user password"}))
+	}
+	err = h.services.ChangePassword(userId, payload.NewPassword)
+	return nil
+}
+
+func (h *Handlers) LogoutUser(c fiber.Ctx) error {
+	c.Locals("userId", 0)
+	return c.SendStatus(fiber.StatusAccepted)
+}
+
+func (h *Handlers) DeleteUser(c fiber.Ctx) error {
+	userId := c.Locals("userId").(int)
+	err := h.services.DeleteUser(userId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	c.Locals("userId", 0)
+	c.ClearCookie("token")
+	return c.SendStatus(fiber.StatusOK)
+}

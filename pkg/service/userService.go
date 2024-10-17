@@ -38,3 +38,7 @@ func (u *UserService) ChangePassword(id int, password string) error {
 func (u *UserService) DeleteUser(id int) error {
 	return u.repo.DeleteUser(id)
 }
+
+func (u *UserService) IsCorrectPasswordId(id int, passwordToCheck string) (bool, error) {
+	return u.repo.IsCorrectPasswordId(id, passwordToCheck)
+}
