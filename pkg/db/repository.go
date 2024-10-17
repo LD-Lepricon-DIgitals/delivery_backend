@@ -13,6 +13,7 @@ type UserServices interface {
 	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
 	ChangePassword(id int, password string) error //14
 	DeleteUser(id int) error
+	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
 	//TODO: ChangePhoto
 }
 type WorkerServices interface {

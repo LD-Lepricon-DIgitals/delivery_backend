@@ -12,7 +12,9 @@ type UserServices interface {
 	IsCorrectPassword(login string, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
 	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
-	ChangePassword(id int, password string) error //14
+	ChangePassword(id int, password string) error
+	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
+	DeleteUser(id int) error //14
 }
 
 type WorkerServices interface {
