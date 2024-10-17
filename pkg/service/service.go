@@ -9,10 +9,10 @@ import (
 type UserServices interface {
 	CreateUser(login, name, surname, address, phoneNumber, password string) (int, error)
 	GetUserId(login string) (int, error)
-	IsCorrectPassword(id int, password string) (bool, error)
+	IsCorrectPassword(login string, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
 	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
-	ChangePassword(id, password string) error //14
+	ChangePassword(id int, password string) error //14
 }
 
 type WorkerServices interface {
@@ -35,7 +35,7 @@ type ReviewServices interface {
 }
 
 type AuthServices interface {
-	CreateToken(login, password string) (string, error)
+	CreateToken(id int) (string, error)
 	ParseToken(token string) (int, error)
 }
 
