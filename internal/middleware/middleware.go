@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"log"
 	"strconv"
-	"strings"
 )
 
 type Middleware struct {
@@ -17,17 +16,11 @@ func NewMiddleware(srv *service.Service) *Middleware {
 }
 
 func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
-	headers := c.GetReqHeaders()
-
-	if headers["Authorization"] == nil {
+	token := c.Cookies("token")
+	if token == "" {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
-	headerParts := strings.Split(headers["Authorization"][0], " ")
-	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		return c.SendStatus(fiber.StatusUnauthorized)
-	}
-
-	userId, err := m.srv.AuthServices.ParseToken(headerParts[1])
+	userId, err := m.srv.AuthServices.ParseToken(token)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
