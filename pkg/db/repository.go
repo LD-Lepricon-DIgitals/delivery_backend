@@ -8,7 +8,7 @@ import (
 type UserServices interface {
 	CreateUser(login, name, surname, address, phoneNumber, password string) (int, error)
 	GetUserId(login string) (int, error)
-	IsCorrectPassword(id int, password string) (bool, error)
+	IsCorrectPassword(login string, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
 	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
 	ChangePassword(id int, password string) error //14

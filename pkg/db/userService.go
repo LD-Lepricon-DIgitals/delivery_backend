@@ -63,9 +63,9 @@ func (u *UserService) IfUserExists(login string) (bool, error) {
 	return true, nil
 }
 
-func (u *UserService) IsCorrectPassword(id int, passwordToCheck string) (bool, error) {
+func (u *UserService) IsCorrectPassword(login string, passwordToCheck string) (bool, error) {
 	var password string
-	err := u.db.Get(&password, "SELECT user_hashed_password FROM users WHERE id = $1", id)
+	err := u.db.Get(&password, "SELECT user_hashed_password FROM users WHERE user_login = $1", login)
 	if err != nil {
 		return false, fmt.Errorf("error checking password: %w", err)
 	}
