@@ -9,23 +9,23 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 	var params models.UserReg
 	err := c.Bind().Body(&params)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")
 	}
 	exists, err := h.services.IfUserExists(params.UserLogin)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "invalid params"})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	if exists {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "user already exists"})
+		return fiber.NewError(fiber.StatusConflict, "User already exists")
 	}
 
 	userId, err := h.services.CreateUser(params.UserLogin, params.UserName, params.UserSurname, params.UserAddress, params.UserPhone, params.UserPass)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	token, err := h.services.CreateToken(userId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	cookie := fiber.Cookie{
 		Name:  "token",
@@ -44,30 +44,30 @@ type LoginPayload struct {
 func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	userId := c.Locals("userId").(int)
 	if userId != 0 {
-		return c.SendStatus(fiber.StatusAccepted)
+		return c.SendStatus(fiber.StatusOK)
 	}
 	var payload LoginPayload
 	err := c.Bind().Body(&payload)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid params"})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")
 	}
 	exists, err := h.services.IfUserExists(payload.UserLogin)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	if !exists {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "user does not exists"})
+		return fiber.NewError(fiber.StatusNotFound, "User not exists")
 	}
 	ok, err := h.services.IsCorrectPassword(payload.UserLogin, payload.UserPassword)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "invalid user password"})
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid user password")
 	}
 	userId, err = h.services.GetUserId(payload.UserLogin)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	token, err := h.services.CreateToken(userId)
 	cookie := fiber.Cookie{
@@ -76,7 +76,7 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	}
 	cookie.Partitioned = true
 	c.Cookie(&cookie)
-	return c.SendStatus(fiber.StatusAccepted)
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
@@ -84,11 +84,11 @@ func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
 	var payload models.UserInfo
 	err := c.Bind().Body(&payload)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")
 	}
 	err = h.services.ChangeUserCredentials(userId, payload.UserLogin, payload.Name, payload.Surname, payload.Address, payload.Phone)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	return c.SendStatus(fiber.StatusOK)
 }
@@ -103,12 +103,12 @@ func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
 	var payload ChangePasswordPayload
 	err := c.Bind().Body(&payload)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")
 	}
 	if ok, err := h.services.IsCorrectPasswordId(userId, payload.OldPassword); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	} else if !ok {
-		return (c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid user password"}))
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid password")
 	}
 	err = h.services.ChangePassword(userId, payload.NewPassword)
 	return nil
@@ -116,14 +116,14 @@ func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
 
 func (h *Handlers) LogoutUser(c fiber.Ctx) error {
 	c.Locals("userId", 0)
-	return c.SendStatus(fiber.StatusAccepted)
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func (h *Handlers) DeleteUser(c fiber.Ctx) error {
 	userId := c.Locals("userId").(int)
 	err := h.services.DeleteUser(userId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	c.Locals("userId", 0)
 	c.ClearCookie("token")

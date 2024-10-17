@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/logger"
+	"github.com/gofiber/fiber/v3/middleware/recover"
 	"log"
 )
 
@@ -31,6 +32,7 @@ func (s *Server) Run() {
 		ErrorHandler: handlers.CustomError,
 	})
 	s.srv.Use(logger.New())
+	s.srv.Use(recover.New())
 	s.srv.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{"Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,X-CSRF-Token,Authorization"},
@@ -43,12 +45,16 @@ func (s *Server) Run() {
 
 func (s *Server) InitRoutes() {
 
-	//auth := s.srv.Group("/auth")
-	//auth.Post("/login", s.h.LoginUser)
-	//auth.Post("/register", s.h.RegUser)
+	auth := s.srv.Group("/auth")
+	auth.Post("/login", s.h.LoginUser)
+	auth.Post("/register", s.h.RegisterUser)
 
-	//api := s.srv.Group("/api")
-	//user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
+	api := s.srv.Group("/api")
+	user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
+	user.Post("/change", s.h.ChangeUserCredentials)
+	user.Post("/change_password", s.h.ChangeUserPassword)
+	user.Post("/delete", s.h.DeleteUser)
+	user.Post("/logout", s.h.LogoutUser)
 
 }
 
