@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
 
@@ -31,19 +30,8 @@ func (u *UserService) ChangeUserCredentials(id int, login, name, surname, addres
 	return u.repo.ChangeUserCredentials(id, login, name, surname, address, phone)
 }
 
-func (u *UserService) ChangePassword(login string, password string) error { //TODO: id
-	userId, err := u.GetUserId(login)
-	if err != nil {
-		return err
-	}
-	ok, err := u.IsCorrectPassword(userId, password)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return errors.New("invalid password")
-	}
-	return u.repo.ChangePassword(userId, password)
+func (u *UserService) ChangePassword(id int, password string) error {
+	return u.repo.ChangePassword(id, password)
 
 }
 
