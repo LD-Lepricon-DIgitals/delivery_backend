@@ -17,3 +17,12 @@ type UserInfo struct {
 	Surname string `db:"user_surname"`
 	Address string `db:"user_adress"`
 }
+
+type UserReg struct {
+	UserLogin   string `json:"user_login"`
+	UserName    string `json:"user_name"`
+	UserSurname string `json:"user_surname"`
+	UserAddress string `json:"user_address"`
+	UserPhone   string `json:"user_phone"`
+	UserPass    string `json:"user_password"`
+}
