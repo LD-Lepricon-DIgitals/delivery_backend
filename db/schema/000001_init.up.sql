@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS dishes
     dish_weight      float NOT NULL,
     dish_photo       text NOT NULL,
     dish_rating      float,
-    dish_category    int,
+    dish_category    int NOT NULL,
     CONSTRAINT fk_dish_category FOREIGN KEY (dish_category) REFERENCES dish_categories (id) ON DELETE CASCADE
 );
 

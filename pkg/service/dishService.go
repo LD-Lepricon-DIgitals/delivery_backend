@@ -23,8 +23,8 @@ func (d *DishService) GetDishes() ([]models.Dish, error) {
 	return dishes, nil
 }
 
-func (d *DishService) AddDish(name string, price, weight float64, description, photo string) (int, error) {
-	id, err := d.repo.AddDish(name, price, weight, description, photo)
+func (d *DishService) AddDish(name string, price, weight float64, description, photo string, category int) (int, error) {
+	id, err := d.repo.AddDish(name, price, weight, description, photo, category)
 	if err != nil {
 		return 0, err
 	}
@@ -39,8 +39,8 @@ func (d *DishService) DeleteDish(id int) error {
 	return nil
 }
 
-func (d *DishService) ChangeDish(id int, name string, price, weight float64, description, photo string) error {
-	err := d.repo.ChangeDish(id, name, price, weight, description, photo)
+func (d *DishService) ChangeDish(id int, name string, price, weight float64, description, photo string, category int) error {
+	err := d.repo.ChangeDish(id, name, price, weight, description, photo, category)
 	if err != nil {
 		return err
 	}
