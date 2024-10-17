@@ -40,10 +40,10 @@ func (d *DishService) GetDishes() ([]models.Dish, error) {
 	return dishes, nil
 }
 
-func (d *DishService) AddDish(name string, price, weight float64, description, photo string, dishCategory int) (int, error) {
+func (d *DishService) AddDish(name string, price, weight float64, description, photo string, category int) (int, error) {
 	var id int
 	query := "INSERT INTO dishes (dish_name, dish_price, dish_weight, dish_description, dish_photo, dish_category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;"
-	row := d.db.QueryRow(query, name, price, weight, description, photo, dishCategory)
+	row := d.db.QueryRow(query, name, price, weight, description, photo, category)
 	if err := row.Scan(&id); err != nil {
 		return 0, errors.New("Error adding dish: " + err.Error())
 	}
@@ -66,16 +66,16 @@ func (d *DishService) DeleteDish(id int) error {
 	return nil
 }
 
-func (d *DishService) ChangeDish(id int, name string, price, weight float64, description, photo string) error {
+func (d *DishService) ChangeDish(id int, name string, price, weight float64, description, photo string, category int) error {
 	var res int
 	checkQuery := "SELECT COUNT(1) FROM dishes WHERE id=$1;"
-	updateQuery := "UPDATE dishes SET dish_name=$1, dish_price=$2, dish_weight=$3, dish_description=$4, dish_photo=$5 WHERE id=$6;"
+	updateQuery := "UPDATE dishes SET dish_name=$1, dish_price=$2, dish_weight=$3, dish_description=$4, dish_photo=$5, dish_category=$6 WHERE id=$6;"
 	row := d.db.QueryRow(checkQuery, id)
 	if err := row.Scan(&res); err != nil {
 		return errors.New("Error checking dish count: " + err.Error())
 	}
 	if res == 1 {
-		res, err := d.db.Exec(updateQuery, name, price, weight, description, photo, id)
+		res, err := d.db.Exec(updateQuery, name, price, weight, description, photo, id, category)
 		rowsAffected, err := res.RowsAffected()
 		if err != nil {
 			return errors.New("Error after affecting rows: " + err.Error())
