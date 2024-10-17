@@ -40,10 +40,10 @@ func (d *DishService) GetDishes() ([]models.Dish, error) {
 	return dishes, nil
 }
 
-func (d *DishService) AddDish(name string, price, weight float64, description, photo string) (int, error) {
+func (d *DishService) AddDish(name string, price, weight float64, description, photo string, dishCategory int) (int, error) {
 	var id int
-	query := "INSERT INTO dishes (dish_name, dish_price, dish_weight, dish_description, dish_photo) VALUES ($1, $2, $3, $4, $5) RETURNING id;"
-	row := d.db.QueryRow(query, name, price, weight, description, photo)
+	query := "INSERT INTO dishes (dish_name, dish_price, dish_weight, dish_description, dish_photo, dish_category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;"
+	row := d.db.QueryRow(query, name, price, weight, description, photo, dishCategory)
 	if err := row.Scan(&id); err != nil {
 		return 0, errors.New("Error adding dish: " + err.Error())
 	}

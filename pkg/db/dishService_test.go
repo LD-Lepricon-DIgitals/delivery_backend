@@ -82,6 +82,7 @@ func TestDishService_AddDish(t *testing.T) {
 		dishWeight      float64
 		dishDescription string
 		dishPhoto       string
+		dishCategory    int
 	}
 	type mockBehavior func(args args)
 
@@ -100,11 +101,12 @@ func TestDishService_AddDish(t *testing.T) {
 				dishWeight:      100.0,
 				dishDescription: "test",
 				dishPhoto:       "url",
+				dishCategory:    1,
 			},
 			id: 1,
 			mockBehavior: func(args args) {
 				mock.ExpectQuery("INSERT INTO dishes").
-					WithArgs(args.dishName, args.dishPrice, args.dishWeight, args.dishDescription, args.dishPhoto).
+					WithArgs(args.dishName, args.dishPrice, args.dishWeight, args.dishDescription, args.dishPhoto, args.dishCategory).
 					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 			},
 		},
@@ -112,7 +114,7 @@ func TestDishService_AddDish(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			testCase.mockBehavior(testCase.args)
-			got, err := dishService.AddDish(testCase.args.dishName, testCase.args.dishPrice, testCase.args.dishWeight, testCase.args.dishDescription, testCase.args.dishPhoto)
+			got, err := dishService.AddDish(testCase.args.dishName, testCase.args.dishPrice, testCase.args.dishWeight, testCase.args.dishDescription, testCase.args.dishPhoto, testCase.args.dishCategory)
 			if testCase.wantErr {
 				assert.Error(t, err)
 			} else {
