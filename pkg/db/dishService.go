@@ -19,7 +19,7 @@ func NewDishService(db *sqlx.DB) *DishService {
 
 func (d *DishService) GetDishes() ([]models.Dish, error) {
 	var dishes []models.Dish
-	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category=dish_categories.id;"
+	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category= dish_categories.id;"
 	rows, err := d.db.Query(query)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Error getting dishes: %s", err))
@@ -90,7 +90,7 @@ func (d *DishService) ChangeDish(id int, name string, price, weight float64, des
 
 func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error) {
 	var dishes []models.Dish
-	query := "SELECT dishes.dish_id, dishes.dish_name, dishes.dish_price, dishes.dish_weight, dishes.dish_description, dishes.dish_photo FROM dishes INNER JOIN dish_categories ON dishes.dish_category = dish_categories.id WHERE dish_categories.category_name=$1;"
+	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_price, dishes.dish_weight, dishes.dish_description, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes INNER JOIN dish_categories ON dishes.dish_category = dish_categories.id WHERE dish_categories.category_name=$1;"
 	rows, err := d.db.Query(query, category)
 	if err != nil {
 		return nil, errors.New("Error querying dishes: " + err.Error())
@@ -99,7 +99,7 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 
 	for rows.Next() {
 		var dish models.Dish
-		err := rows.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating)
+		err := rows.Scan(&dish.Id, &dish.Name, &dish.Price, &dish.Weight, &dish.Description, &dish.PhotoUrl, &dish.Rating, &dish.Category)
 		if err != nil {
 			return nil, errors.New("Error getting dishes: " + err.Error())
 		}
@@ -113,7 +113,7 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 
 func (d *DishService) GetDishById(id int) (models.Dish, error) {
 	var dish models.Dish
-	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_categories = dish_category.id WHERE dishes.id=$1;"
+	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category= dish_categories.id WHERE dishes.id=$1;"
 	row := d.db.QueryRow(query, id)
 	if err := row.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating, &dish.Category); err != nil {
 		return dish, errors.New("Error getting dish by id: " + err.Error())
@@ -123,7 +123,7 @@ func (d *DishService) GetDishById(id int) (models.Dish, error) {
 
 func (d *DishService) SearchByName(name string) ([]models.Dish, error) {
 	var dishes []models.Dish
-	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_categories = dish_category.id WHERE dishes.dish_name ILIKE $1;"
+	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category = dish_categories.id WHERE dishes.dish_name ILIKE $1;"
 	rows, err := d.db.Query(query, "%"+name+"%")
 	if err != nil {
 		return nil, errors.New("Error getting dishes by name: " + err.Error())

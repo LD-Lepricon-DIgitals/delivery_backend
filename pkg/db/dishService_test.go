@@ -1,6 +1,7 @@
 package db_test
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
@@ -35,7 +36,7 @@ func TestDishService_GetDishes(t *testing.T) {
 			mockBehavior: func() {
 				rows := sqlmock.NewRows([]string{"id", "dish_name", "dish_description", "dish_price", "dish_weight", "dish_photo", "dish_rating", "category_name"}).
 					AddRow(1, "Plov", "desc", 100.0, 100.1, "url", 2.2, "category")
-				mock.ExpectQuery("SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category=dish_categories.id;").
+				mock.ExpectQuery("SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category= dish_categories.id;").
 					WillReturnRows(rows).
 					RowsWillBeClosed()
 			},
@@ -47,8 +48,9 @@ func TestDishService_GetDishes(t *testing.T) {
 					Price:       100.0,
 					Weight:      100.1,
 					PhotoUrl:    "url",
-					Rating:      2.2,
-					Category:    "category"},
+					Rating:      sql.NullFloat64{Float64: 2.2, Valid: true},
+					Category:    "category",
+				},
 			},
 		},
 	}
@@ -227,7 +229,7 @@ func TestDishService_ChangeDish(t *testing.T) {
 				mock.ExpectQuery("SELECT COUNT\\(1\\) FROM dishes WHERE id=\\$1;").
 					WithArgs(args.id).
 					WillReturnRows(sqlmock.NewRows([]string{"res"}).AddRow(1))
-				mock.ExpectExec("UPDATE dishes SET dish_name=\\$1, dish_price=\\$2, dish_weight=\\$3, dish_description=\\$4, dish_photo=\\$5, dish_category=\\$6 WHERE id=\\$6;").
+				mock.ExpectExec("UPDATE dishes SET dish_name=\\$1, dish_price=\\$2, dish_weight=\\$3, dish_description=\\$4, dish_photo=\\$5, dish_category=\\$6 WHERE id=\\$7;").
 					WithArgs(args.dishName, args.dishPrice, args.dishWeight, args.dishDescription, args.dishPhoto, args.dishCategory, args.id).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
