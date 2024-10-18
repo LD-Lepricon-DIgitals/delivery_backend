@@ -58,9 +58,9 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 func (d *DishService) GetDishById(id int) (models.Dish, error) {
 	dish, err := d.repo.GetDishById(id)
 	if err != nil {
-		return dish, nil
+		return dish, err
 	}
-	return dish, err
+	return dish, nil
 }
 
 func (d *DishService) SearchByName(name string) ([]models.Dish, error) {

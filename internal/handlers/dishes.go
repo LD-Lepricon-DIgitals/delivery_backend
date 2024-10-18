@@ -2,13 +2,17 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"log"
 	"strconv"
 )
 
 func (h *Handlers) GetDishes(ctx fiber.Ctx) error {
 	dishes, err := h.services.GetDishes()
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Failed to get dishes")
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get dishes")
+	}
+	if len(dishes) == 0 {
+		return fiber.NewError(fiber.StatusNotFound, "Not found")
 	}
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
@@ -71,7 +75,7 @@ func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
 }
 
 type GetDishesByCategoryPayload struct {
-	Category string `json:"category" binding:"required"`
+	Category string `json:"dish_category" binding:"required"`
 }
 
 func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
@@ -82,7 +86,11 @@ func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
 	}
 	dishes, err := h.services.GetDishesByCategory(payload.Category)
 	if err != nil {
+		log.Printf(err.Error())
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get dishes by category")
+	}
+	if len(dishes) == 0 {
+		return fiber.NewError(fiber.StatusNotFound, "Dishes not found")
 	}
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
@@ -95,6 +103,7 @@ func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
 	}
 	dish, err := h.services.GetDishById(id)
 	if err != nil {
+		log.Printf("Error getting dishes: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get dish by id")
 	}
 	return ctx.Status(fiber.StatusOK).JSON(dish)
