@@ -55,7 +55,15 @@ func (s *Server) InitRoutes() {
 	user.Post("/change_password", s.h.ChangeUserPassword)
 	user.Post("/delete", s.h.DeleteUser)
 	user.Post("/logout", s.h.LogoutUser)
-
+	dishes := api.Group("/dishes")
+	dishes.Get("/", s.h.GetDishes)
+	dishes.Get("/by_id/:dish_id", s.h.GetDishById)
+	dishes.Get("/by_category", s.h.GetDishesByCategory)
+	dishes.Get("/search", s.h.SearchByName)
+	secureDishes := dishes.Group("/") // TODO : add middleware
+	secureDishes.Post("/add", s.h.AddDish)
+	secureDishes.Delete("/delete/:id", s.h.DeleteDish)
+	secureDishes.Put("/update", s.h.ChangeDish)
 }
 
 func (s *Server) Stop() {

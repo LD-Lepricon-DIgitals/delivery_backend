@@ -69,7 +69,7 @@ func (d *DishService) DeleteDish(id int) error {
 func (d *DishService) ChangeDish(id int, name string, price, weight float64, description, photo string, category int) error {
 	var res int
 	checkQuery := "SELECT COUNT(1) FROM dishes WHERE id=$1;"
-	updateQuery := "UPDATE dishes SET dish_name=$1, dish_price=$2, dish_weight=$3, dish_description=$4, dish_photo=$5, dish_category=$6 WHERE id=$6;"
+	updateQuery := "UPDATE dishes SET dish_name=$1, dish_price=$2, dish_weight=$3, dish_description=$4, dish_photo=$5, dish_category=$6 WHERE id=$7;"
 	row := d.db.QueryRow(checkQuery, id)
 	if err := row.Scan(&res); err != nil {
 		return errors.New("Error checking dish count: " + err.Error())

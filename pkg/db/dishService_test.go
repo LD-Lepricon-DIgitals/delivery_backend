@@ -201,6 +201,7 @@ func TestDishService_ChangeDish(t *testing.T) {
 		dishWeight      float64
 		dishDescription string
 		dishPhoto       string
+		dishCategory    int
 	}
 
 	type mockBehavior func(args args)
@@ -220,13 +221,14 @@ func TestDishService_ChangeDish(t *testing.T) {
 				dishWeight:      10.0,
 				dishDescription: "Some description",
 				dishPhoto:       "photo url",
+				dishCategory:    1,
 			},
 			mockBehavior: func(args args) {
 				mock.ExpectQuery("SELECT COUNT\\(1\\) FROM dishes WHERE id=\\$1;").
 					WithArgs(args.id).
 					WillReturnRows(sqlmock.NewRows([]string{"res"}).AddRow(1))
-				mock.ExpectExec("UPDATE dishes SET dish_name=\\$1, dish_price=\\$2, dish_weight=\\$3, dish_description=\\$4, dish_photo=\\$5 WHERE id=\\$6;").
-					WithArgs(args.dishName, args.dishPrice, args.dishWeight, args.dishDescription, args.dishPhoto, args.id).
+				mock.ExpectExec("UPDATE dishes SET dish_name=\\$1, dish_price=\\$2, dish_weight=\\$3, dish_description=\\$4, dish_photo=\\$5, dish_category=\\$6 WHERE id=\\$6;").
+					WithArgs(args.dishName, args.dishPrice, args.dishWeight, args.dishDescription, args.dishPhoto, args.dishCategory, args.id).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 		},
@@ -239,6 +241,7 @@ func TestDishService_ChangeDish(t *testing.T) {
 				dishWeight:      10.0,
 				dishDescription: "Some description",
 				dishPhoto:       "photo url",
+				dishCategory:    1,
 			},
 			mockBehavior: func(args args) {
 				mock.ExpectQuery("SELECT COUNT\\(1\\) FROM dishes WHERE id=\\$1;").
@@ -251,7 +254,7 @@ func TestDishService_ChangeDish(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			testCase.mockBehavior(testCase.args)
-			err := dishService.ChangeDish(testCase.args.id, testCase.args.dishName, testCase.args.dishPrice, testCase.args.dishWeight, testCase.args.dishDescription, testCase.args.dishPhoto)
+			err := dishService.ChangeDish(testCase.args.id, testCase.args.dishName, testCase.args.dishPrice, testCase.args.dishWeight, testCase.args.dishDescription, testCase.args.dishPhoto, testCase.args.dishCategory)
 			if testCase.wantErr {
 				assert.Error(t, err)
 			} else {

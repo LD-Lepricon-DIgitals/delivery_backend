@@ -10,6 +10,9 @@ func (h *Handlers) GetDishes(ctx fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Failed to get dishes")
 	}
+	if len(dishes) == 0 {
+		return fiber.NewError(fiber.StatusNotFound, "Not found")
+	}
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
 
