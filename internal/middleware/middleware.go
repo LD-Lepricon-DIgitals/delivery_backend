@@ -4,7 +4,6 @@ import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/service"
 	"github.com/gofiber/fiber/v3"
 	"log"
-	"strconv"
 )
 
 type Middleware struct {
@@ -25,6 +24,6 @@ func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	log.Println(userId)
-	c.Locals("userId", strconv.Itoa(userId))
+	c.Locals("userId", userId)
 	return c.Next()
 }

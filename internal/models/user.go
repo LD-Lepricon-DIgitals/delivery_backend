@@ -11,18 +11,18 @@ type User struct {
 }
 
 type UserInfo struct {
-	UserLogin string `json:"user_login" binding:"required"`
-	Phone     string `json:"user_phone" binding:"required"`
-	Name      string `json:"user_name" binding:"required"`
-	Surname   string `json:"user_surname" binding:"required"`
-	Address   string `json:"user_adress" binding:"required"`
+	UserLogin string `json:"user_login" validate:"required"`
+	Phone     string `json:"user_phone" validate:"required"`
+	Name      string `json:"user_name" validate:"required"`
+	Surname   string `json:"user_surname" validate:"required"`
+	Address   string `json:"user_address" validate:"required"`
 }
 
 type UserReg struct {
-	UserLogin   string `json:"user_login" binding:"required"`
-	UserName    string `json:"user_name" binding:"required"`
-	UserSurname string `json:"user_surname" binding:"required"`
-	UserAddress string `json:"user_address" binding:"required"`
-	UserPhone   string `json:"user_phone" binding:"required"`
-	UserPass    string `json:"user_password" binding:"required"`
+	UserLogin   string `json:"user_login" validate:"required"`
+	UserName    string `json:"user_name" validate:"required"`
+	UserSurname string `json:"user_surname" validate:"required"`
+	UserAddress string `json:"user_address" validate:"required"`
+	UserPhone   string `json:"user_phone" validate:"required"`
+	UserPass    string `json:"user_password" validate:"required"`
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/config"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/handlers"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/middleware"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/logger"
@@ -28,8 +29,9 @@ func NewServer(config *config.Config, handlers *handlers.Handlers, midd *middlew
 
 func (s *Server) Run() {
 	s.srv = fiber.New(fiber.Config{
-		AppName:      "Delivery app ver 1.0",
-		ErrorHandler: handlers.CustomError,
+		AppName:         "Delivery app ver 1.0",
+		ErrorHandler:    handlers.CustomError,
+		StructValidator: &structValidator{validate: validator.New()},
 	})
 	s.srv.Use(logger.New())
 	s.srv.Use(recover.New())
@@ -54,7 +56,8 @@ func (s *Server) InitRoutes() {
 	user.Post("/change", s.h.ChangeUserCredentials)
 	user.Post("/change_password", s.h.ChangeUserPassword)
 	user.Post("/delete", s.h.DeleteUser)
-	user.Post("/logout", s.h.LogoutUser)
+	user.Post("/logout", s.h.LogoutUser) //TODO: GetUserInfo
+	user.Get("/info", s.h.GetUserInfo)
 	dishes := api.Group("/dishes")
 	dishes.Get("/", s.h.GetDishes)
 	dishes.Get("/by_id/:dish_id", s.h.GetDishById)

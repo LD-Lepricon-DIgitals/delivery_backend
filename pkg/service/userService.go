@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
 
@@ -41,4 +42,8 @@ func (u *UserService) DeleteUser(id int) error {
 
 func (u *UserService) IsCorrectPasswordId(id int, passwordToCheck string) (bool, error) {
 	return u.repo.IsCorrectPasswordId(id, passwordToCheck)
+}
+
+func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
+	return u.repo.GetUserInfo(id)
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/jmoiron/sqlx"
 	"log"
 )
@@ -23,17 +24,26 @@ func (u *UserService) CreateUser(login, name, surname, address, phoneNumber, pas
 	if err != nil {
 		return 0, fmt.Errorf("failed to begin transaction: %w", err)
 	}
+
+	// Вставка пользователя
 	err = tx.QueryRow("INSERT INTO users (user_login, user_hashed_password) VALUES ($1, $2) RETURNING id;", login, password).Scan(&userId)
 	if err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users table: %w", err)
 	}
-	_, err = u.db.Exec("INSERT INTO users_info (user_id, user_phone, user_name, user_surname, user_adress) VALUES ($1, $2, $3, $4, $5)", userId, phoneNumber, name, surname, address)
+
+	// Вставка информации о пользователе
+	_, err = tx.Exec("INSERT INTO users_info (user_id, user_phone, user_name, user_surname, user_address) VALUES ($1, $2, $3, $4, $5)", userId, phoneNumber, name, surname, address)
 	if err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users_info table: %w", err)
 	}
-	tx.Commit()
+
+	// Завершение транзакции
+	err = tx.Commit()
+	if err != nil {
+		return 0, fmt.Errorf("failed to commit transaction: %w", err)
+	}
 
 	log.Println(fmt.Sprintf("user %d created", userId))
 	return userId, nil
@@ -94,7 +104,7 @@ func (u *UserService) ChangeUserCredentials(id int, login, name, surname, addres
 	}
 
 	//Updating users_info
-	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_adress = $3 WHERE user_id = $4", name, surname, address, id)
+	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_address = $3 WHERE user_id = $4", name, surname, address, id)
 	if err != nil {
 
 		tx.Rollback()
@@ -163,4 +173,25 @@ func (u *UserService) IsCorrectPasswordId(id int, passwordToCheck string) (bool,
 		return false, nil
 	}
 	return true, nil
+}
+
+func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
+	var user models.UserInfo
+	tx, err := u.db.Begin()
+	if err != nil {
+		return user, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	err = tx.QueryRow("SELECT user_login FROM users WHERE id = $1", id).Scan(&user.UserLogin)
+	if err != nil {
+		return user, fmt.Errorf("failed to get user info: %w", err)
+	}
+	err = tx.QueryRow("SELECT user_phone, user_name, user_surname, user_address FROM users_info WHERE user_id = $1", id).Scan(&user.Phone, &user.Name, &user.Surname, &user.Address)
+	if err != nil {
+		return user, fmt.Errorf("failed to get user info: %w", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return user, fmt.Errorf("failed to get user info: %w", err)
+	}
+	return user, nil
 }
