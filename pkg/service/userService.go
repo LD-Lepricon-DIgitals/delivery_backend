@@ -47,3 +47,7 @@ func (u *UserService) IsCorrectPasswordId(id int, passwordToCheck string) (bool,
 func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
 	return u.repo.GetUserInfo(id)
 }
+
+func (u *UserService) UpdatePhoto(photo string, userId int) error {
+	return u.repo.UpdatePhoto(photo, userId)
+}

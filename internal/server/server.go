@@ -1,6 +1,8 @@
 package server
 
 import (
+	"log"
+
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/config"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/handlers"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/middleware"
@@ -9,7 +11,6 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
-	"log"
 )
 
 type Server struct {
@@ -58,6 +59,7 @@ func (s *Server) InitRoutes() {
 	user.Post("/delete", s.h.DeleteUser)
 	user.Post("/logout", s.h.LogoutUser) //TODO: GetUserInfo
 	user.Get("/info", s.h.GetUserInfo)
+	user.Post("/photo", s.h.UpdatePhoto)
 	dishes := api.Group("/dishes")
 	dishes.Get("/", s.h.GetDishes)
 	dishes.Get("/by_id/:dish_id", s.h.GetDishById)

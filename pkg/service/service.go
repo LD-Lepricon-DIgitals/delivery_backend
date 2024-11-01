@@ -16,6 +16,7 @@ type UserServices interface {
 	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
 	DeleteUser(id int) error //14
 	GetUserInfo(id int) (models.UserInfo, error)
+	UpdatePhoto(photo string, userId int) error
 }
 
 type WorkerServices interface {

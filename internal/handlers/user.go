@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"errors"
+	"fmt"
+	"log"
+
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/gofiber/fiber/v3"
 )
@@ -154,4 +158,24 @@ func (h *Handlers) GetUserInfo(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	return c.Status(fiber.StatusOK).JSON(user)
+}
+
+type ChangePhotoPayload struct {
+	PhotoString string `json:"photo" validate:"required"`
+}
+
+func (h *Handlers) UpdatePhoto(c fiber.Ctx) error {
+	userId := c.Locals("userId").(int)
+	var payload ChangePhotoPayload
+	err := c.Bind().JSON(&payload)
+	if err != nil {
+		log.Println(fmt.Sprintf("error: %s", err.Error()))
+		return fiber.NewError(fiber.StatusBadRequest, errors.New("invalid request body").Error())
+	}
+	err = h.services.UpdatePhoto(payload.PhotoString, userId)
+	if err != nil {
+		log.Println(fmt.Sprintf("error: %s", err.Error()))
+		return fiber.NewError(fiber.StatusInternalServerError, errors.New("failed to update photo").Error())
+	}
+	return c.SendStatus(fiber.StatusOK)
 }
