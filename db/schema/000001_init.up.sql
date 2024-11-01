@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS users_info
     user_name    text            NOT NULL,
     user_surname text            NOT NULL,
     user_address text            NOT NULL,
+    user_photo text NOT NULL,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
