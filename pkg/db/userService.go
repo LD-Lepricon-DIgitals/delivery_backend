@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/jmoiron/sqlx"
-	"log"
 )
 
 type UserService struct {
@@ -33,7 +34,7 @@ func (u *UserService) CreateUser(login, name, surname, address, phoneNumber, pas
 	}
 
 	// Вставка информации о пользователе
-	_, err = tx.Exec("INSERT INTO users_info (user_id, user_phone, user_name, user_surname, user_address) VALUES ($1, $2, $3, $4, $5)", userId, phoneNumber, name, surname, address)
+	_, err = tx.Exec("INSERT INTO users_info (user_id, user_phone, user_name, user_surname, user_address,user_photo) VALUES ($1, $2, $3, $4, $5,&6)", userId, phoneNumber, name, surname, address, "")
 	if err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users_info table: %w", err)
@@ -185,7 +186,7 @@ func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
 	if err != nil {
 		return user, fmt.Errorf("failed to get user info: %w", err)
 	}
-	err = tx.QueryRow("SELECT user_phone, user_name, user_surname, user_address FROM users_info WHERE user_id = $1", id).Scan(&user.Phone, &user.Name, &user.Surname, &user.Address)
+	err = tx.QueryRow("SELECT user_phone, user_name, user_surname, user_address, user_photo FROM users_info WHERE user_id = $1", id).Scan(&user.Phone, &user.Name, &user.Surname, &user.Address, &user.Photo)
 	if err != nil {
 		return user, fmt.Errorf("failed to get user info: %w", err)
 	}
@@ -194,4 +195,25 @@ func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
 		return user, fmt.Errorf("failed to get user info: %w", err)
 	}
 	return user, nil
+}
+
+func (u *UserService) UpdatePhoto(photoString string, userId int) error {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return err
+	}
+	res, err := tx.Exec("UPDATE users_info SET user_photo=$1 WHERE user_id = $2", photoString, userId)
+	if rows, _ := res.RowsAffected(); rows == 0 {
+		return errors.New("failed to update photo")
+	}
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return nil
 }
