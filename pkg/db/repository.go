@@ -26,7 +26,7 @@ type WorkerServices interface {
 	ChangeWorkerPassword(id int, password string) error //14
 	DeleteWorker(id int) error
 	IsCorrectWorkerPasswordId(id int, passwordToCheck string) (bool, error)
-	GetWorkerInfo(id int) (models.UserInfo, error)
+	GetWorkerInfo(id int) (models.WorkerInfo, error)
 	UpdateWorkerPhoto(photoString string, userId int) error
 }
 
