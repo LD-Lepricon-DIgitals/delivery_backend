@@ -18,6 +18,16 @@ type UserServices interface {
 	UpdatePhoto(photoString string, userId int) error
 }
 type WorkerServices interface {
+	CreateWorker(login, name, surname, address, phoneNumber, password string) (int, error)
+	GetWorkerId(login string) (int, error)
+	IsCorrectWorkerPassword(login string, password string) (bool, error)
+	IfWorkerExists(login string) (bool, error)
+	ChangeWorkerCredentials(id int, login, name, surname, address, phone string) error
+	ChangeWorkerPassword(id int, password string) error //14
+	DeleteWorker(id int) error
+	IsCorrectWorkerPasswordId(id int, passwordToCheck string) (bool, error)
+	GetWorkerInfo(id int) (models.UserInfo, error)
+	UpdateWorkerPhoto(photoString string, userId int) error
 }
 
 type AdminServices interface {
@@ -45,7 +55,8 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		UserServices: NewUserService(db),
-		DishServices: NewDishService(db),
+		UserServices:   NewUserService(db),
+		DishServices:   NewDishService(db),
+		WorkerServices: NewWorkerService(db),
 	}
 }
