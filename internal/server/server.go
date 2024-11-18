@@ -1,6 +1,8 @@
 package server
 
 import (
+	"github.com/gofiber/fiber/v3/middleware/adaptor"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/config"
@@ -53,13 +55,14 @@ func (s *Server) InitRoutes() {
 	auth.Post("/register", s.h.RegisterUser)
 
 	api := s.srv.Group("/api")
+	api.Get("/swagger/", adaptor.HTTPHandlerFunc(httpSwagger.WrapHandler))
 	user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
-	user.Post("/change", s.h.ChangeUserCredentials)
-	user.Post("/change_password", s.h.ChangeUserPassword)
-	user.Post("/delete", s.h.DeleteUser)
+	user.Patch("/change", s.h.ChangeUserCredentials)
+	user.Patch("/change_password", s.h.ChangeUserPassword)
+	user.Delete("/delete", s.h.DeleteUser)
 	user.Post("/logout", s.h.LogoutUser) //TODO: GetUserInfo
 	user.Get("/info", s.h.GetUserInfo)
-	user.Post("/photo", s.h.UpdatePhoto)
+	user.Patch("/photo", s.h.UpdatePhoto)
 	dishes := api.Group("/dishes")
 	dishes.Get("/", s.h.GetDishes)
 	dishes.Get("/by_id/:dish_id", s.h.GetDishById)

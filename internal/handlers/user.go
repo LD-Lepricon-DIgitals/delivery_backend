@@ -3,12 +3,22 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"log"
-
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/gofiber/fiber/v3"
+	"log"
 )
 
+// RegisterUser registers a new user.
+// @Summary Register a new user
+// @Description Registers a new user and returns a token in a cookie
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body models.UserReg true "User Registration"
+// @Success 200 {object} string "Token in cookie"
+// @Failure 400 {object} models.APIError "Invalid request data"
+// @Failure 409 {object} models.APIError "User already exists"
+// @Router /auth/register [post]
 func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 	var params models.UserReg
 	err := c.Bind().JSON(&params)
@@ -45,6 +55,17 @@ type LoginPayload struct {
 	UserPassword string `json:"user_password" validate:"required"`
 }
 
+// LoginUser logs in an existing user.
+// @Summary Log in a user
+// @Description Logs in a user and returns a token in a cookie
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginPayload true "User Login Credentials"
+// @Success 200 {object} string "Token in cookie"
+// @Failure 400 {object} models.APIError "Invalid request data"
+// @Failure 401 {object} models.APIError "Invalid credentials"
+// @Router /auth/login [post]
 func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	token := c.Cookies("token")
 	if token != "" {
@@ -89,6 +110,16 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// ChangeUserCredentials updates a user's personal details.
+// @Summary Update user credentials
+// @Description Allows the logged-in user to update their details
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param request body models.UserInfo true "Updated User Info"
+// @Success 200 {string} string "Credentials updated successfully"
+// @Failure 400 {object} models.APIError "Invalid request data"
+// @Router /api/user/change [patch]
 func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
 	userId := c.Locals("userId").(int)
 	var payload models.UserInfo
@@ -108,6 +139,17 @@ type ChangePasswordPayload struct {
 	NewPassword string `json:"new_password" validate:"required"`
 }
 
+// ChangeUserPassword changes a user's password.
+// @Summary Change user password
+// @Description Allows the logged-in user to change their password
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param request body ChangePasswordPayload true "Old and New Password"
+// @Success 200 {string} string "Password changed successfully"
+// @Failure 400 {object} models.APIError "Invalid request data"
+// @Failure 401 {object} models.APIError "Invalid old password"
+// @Router /api/user/change_password [patch]
 func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
 	userId := c.Locals("userId").(int)
 	var payload ChangePasswordPayload
@@ -124,6 +166,13 @@ func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
 	return nil
 }
 
+// LogoutUser logs out the currently logged-in user.
+// @Summary Logout user
+// @Description Logs out the currently logged-in user by clearing the authentication token cookie.
+// @Tags auth
+// @Produce json
+// @Success 200 {string} string "User logged out successfully"
+// @Router /api/user/logout [post]
 func (h *Handlers) LogoutUser(c fiber.Ctx) error {
 	cookie := fiber.Cookie{
 		Name:   "token",
@@ -135,6 +184,13 @@ func (h *Handlers) LogoutUser(c fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// DeleteUser deletes a user's account.
+// @Summary Delete user account
+// @Description Deletes the logged-in user's account
+// @Tags user
+// @Success 200 {string} string "User deleted successfully"
+// @Failure 401 {object} models.APIError "Unauthorized"
+// @Router /api/user/delete [delete]
 func (h *Handlers) DeleteUser(c fiber.Ctx) error {
 	userId := c.Locals("userId").(int)
 	err := h.services.DeleteUser(userId)
@@ -151,6 +207,14 @@ func (h *Handlers) DeleteUser(c fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// GetUserInfo retrieves information about the logged-in user.
+// @Summary Get user info
+// @Description Retrieves the details of the logged-in user
+// @Tags user
+// @Produce json
+// @Success 200 {object} models.UserInfo "User information"
+// @Failure 401 {object} models.APIError "Unauthorized"
+// @Router /api/user/info [get]
 func (h *Handlers) GetUserInfo(c fiber.Ctx) error {
 	userId := c.Locals("userId").(int)
 	user, err := h.services.GetUserInfo(userId)
@@ -164,6 +228,16 @@ type ChangePhotoPayload struct {
 	PhotoString string `json:"photo" validate:"required"`
 }
 
+// UpdatePhoto updates a user's profile photo.
+// @Summary Update user photo
+// @Description Allows the logged-in user to update their profile photo
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param request body ChangePhotoPayload true "Photo Data"
+// @Success 200 {string} string "Photo updated successfully"
+// @Failure 400 {object} models.APIError "Invalid request data"
+// @Router /api/user/photo [patch]
 func (h *Handlers) UpdatePhoto(c fiber.Ctx) error {
 	userId := c.Locals("userId").(int)
 	var payload ChangePhotoPayload

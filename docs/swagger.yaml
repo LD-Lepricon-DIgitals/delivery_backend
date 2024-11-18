@@ -1,0 +1,277 @@
+basePath: /
+definitions:
+  handlers.ChangePasswordPayload:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  handlers.ChangePhotoPayload:
+    properties:
+      photo:
+        type: string
+    required:
+    - photo
+    type: object
+  handlers.LoginPayload:
+    properties:
+      user_login:
+        type: string
+      user_password:
+        type: string
+    required:
+    - user_login
+    - user_password
+    type: object
+  models.APIError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  models.UserInfo:
+    properties:
+      user_address:
+        type: string
+      user_login:
+        type: string
+      user_name:
+        type: string
+      user_phone:
+        type: string
+      user_photo:
+        type: string
+      user_surname:
+        type: string
+    required:
+    - user_address
+    - user_login
+    - user_name
+    - user_phone
+    - user_surname
+    type: object
+  models.UserReg:
+    properties:
+      user_address:
+        type: string
+      user_login:
+        type: string
+      user_name:
+        type: string
+      user_password:
+        type: string
+      user_phone:
+        type: string
+      user_surname:
+        type: string
+    required:
+    - user_address
+    - user_login
+    - user_name
+    - user_password
+    - user_phone
+    - user_surname
+    type: object
+host: localhost:1317
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: API documentation for the Delivery Backend
+  title: Delivery Backend API
+  version: "1.0"
+paths:
+  /api/user/change:
+    patch:
+      consumes:
+      - application/json
+      description: Allows the logged-in user to update their details
+      parameters:
+      - description: Updated User Info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Credentials updated successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Update user credentials
+      tags:
+      - user
+  /api/user/change_password:
+    patch:
+      consumes:
+      - application/json
+      description: Allows the logged-in user to change their password
+      parameters:
+      - description: Old and New Password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ChangePasswordPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password changed successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "401":
+          description: Invalid old password
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Change user password
+      tags:
+      - user
+  /api/user/delete:
+    delete:
+      description: Deletes the logged-in user's account
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Delete user account
+      tags:
+      - user
+  /api/user/info:
+    get:
+      description: Retrieves the details of the logged-in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User information
+          schema:
+            $ref: '#/definitions/models.UserInfo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Get user info
+      tags:
+      - user
+  /api/user/logout:
+    post:
+      description: Logs out the currently logged-in user by clearing the authentication
+        token cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged out successfully
+          schema:
+            type: string
+      summary: Logout user
+      tags:
+      - auth
+  /api/user/photo:
+    patch:
+      consumes:
+      - application/json
+      description: Allows the logged-in user to update their profile photo
+      parameters:
+      - description: Photo Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ChangePhotoPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Photo updated successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Update user photo
+      tags:
+      - user
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user and returns a token in a cookie
+      parameters:
+      - description: User Login Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token in cookie
+          schema:
+            type: string
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Log in a user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user and returns a token in a cookie
+      parameters:
+      - description: User Registration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserReg'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token in cookie
+          schema:
+            type: string
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Register a new user
+      tags:
+      - auth
+swagger: "2.0"
