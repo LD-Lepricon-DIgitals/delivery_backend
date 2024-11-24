@@ -100,11 +100,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: Credentials updated successfully
-          schema:
-            type: string
+          description: OK
         "400":
           description: Invalid request data
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/models.APIError'
       summary: Update user credentials
@@ -146,8 +148,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            type: string
         "401":
           description: Unauthorized
           schema:
@@ -184,9 +184,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: User logged out successfully
-          schema:
-            type: string
+          description: OK
       summary: Logout user
       tags:
       - auth
@@ -211,6 +209,10 @@ paths:
           description: Invalid request data
           schema:
             $ref: '#/definitions/models.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.APIError'
       summary: Update user photo
       tags:
       - user
@@ -230,9 +232,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Token in cookie
-          schema:
-            type: string
+          description: OK
         "400":
           description: Invalid request data
           schema:
@@ -260,9 +260,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
-          schema:
-            type: string
+          description: Token in cookie
         "400":
           description: Invalid request data
           schema:
