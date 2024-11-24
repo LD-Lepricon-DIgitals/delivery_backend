@@ -19,11 +19,12 @@ func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
 	if token == "" {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
-	userId, err := m.srv.AuthServices.ParseToken(token)
+	userId, role, err := m.srv.AuthServices.ParseToken(token)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	log.Println(userId)
 	c.Locals("userId", userId)
+	c.Locals("role", role)
 	return c.Next()
 }

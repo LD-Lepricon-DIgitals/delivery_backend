@@ -39,8 +39,8 @@ type ReviewServices interface {
 }
 
 type AuthServices interface {
-	CreateToken(id int) (string, error)
-	ParseToken(token string) (int, error)
+	CreateToken(id int, role string) (string, error)
+	ParseToken(token string) (int, string, error)
 }
 
 type Service struct {
