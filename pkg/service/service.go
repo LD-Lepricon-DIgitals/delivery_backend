@@ -20,6 +20,16 @@ type UserServices interface {
 }
 
 type WorkerServices interface {
+	CreateWorker(login, name, surname, address, phoneNumber, password string) (int, error)
+	GetWorkerId(login string) (int, error)
+	IsCorrectWorkerPassword(login string, password string) (bool, error)
+	IfWorkerExists(login string) (bool, error)
+	ChangeWorkerCredentials(id int, login, name, surname, address, phone string) error
+	ChangeWorkerPassword(id int, password string) error //14
+	DeleteWorker(id int) error
+	IsCorrectWorkerPasswordId(id int, passwordToCheck string) (bool, error)
+	GetWorkerInfo(id int) (models.WorkerInfo, error)
+	UpdateWorkerPhoto(photoString string, userId int) error
 }
 
 type AdminServices interface {
@@ -54,8 +64,9 @@ type Service struct {
 
 func NewService(repo *db.Repository, cfg *config.Config) *Service {
 	return &Service{
-		AuthServices: NewAuthService(cfg, repo),
-		UserServices: NewUserService(repo),
-		DishServices: NewDishService(repo),
+		AuthServices:   NewAuthService(cfg, repo),
+		UserServices:   NewUserService(repo),
+		DishServices:   NewDishService(repo),
+		WorkerServices: NewWorkerService(repo),
 	}
 }
