@@ -15,8 +15,8 @@ import (
 // @Accept json
 // @Produce json
 // @Param request body models.UserReg true "User Registration"
-// @Success 200 {object} string "Token in cookie"
-// @Failure 400 {object} models.APIError "Invalid request data"
+// @Success 200 "Token in cookie"
+// @Failure 400 {object models.APIError "Invalid request data"
 // @Failure 409 {object} models.APIError "User already exists"
 // @Router /auth/register [post]
 func (h *Handlers) RegisterUser(c fiber.Ctx) error {
@@ -37,7 +37,7 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	token, err := h.services.CreateToken(userId)
+	token, err := h.services.CreateToken(userId, "user")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -62,17 +62,18 @@ type LoginPayload struct {
 // @Accept json
 // @Produce json
 // @Param request body LoginPayload true "User Login Credentials"
-// @Success 200 {object} string "Token in cookie"
+// @Success 200
 // @Failure 400 {object} models.APIError "Invalid request data"
 // @Failure 401 {object} models.APIError "Invalid credentials"
 // @Router /auth/login [post]
 func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	token := c.Cookies("token")
 	if token != "" {
-		userId, err := h.services.AuthServices.ParseToken(token)
+		userId, role, err := h.services.AuthServices.ParseToken(token)
 		if err == nil {
 
 			c.Locals("userId", userId)
+			c.Locals("role", role)
 			return c.SendStatus(fiber.StatusOK)
 		}
 		// Если токен не валиден, продолжаем с обычной авторизацией
@@ -100,7 +101,7 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	token, err = h.services.CreateToken(userId)
+	token, err = h.services.CreateToken(userId, "user")
 	cookie := fiber.Cookie{
 		Name:  "token",
 		Value: token,
@@ -117,13 +118,17 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param request body models.UserInfo true "Updated User Info"
-// @Success 200 {string} string "Credentials updated successfully"
+// @Success 200
 // @Failure 400 {object} models.APIError "Invalid request data"
+// @Failure 401 {object} models.APIError "Unauthorized"
 // @Router /api/user/change [patch]
 func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
-	userId := c.Locals("userId").(int)
+	userId, err := verifyUserToken(c)
+	if err != nil {
+		return err
+	}
 	var payload models.UserInfo
-	err := c.Bind().JSON(&payload)
+	err = c.Bind().JSON(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")
 	}
@@ -151,9 +156,12 @@ type ChangePasswordPayload struct {
 // @Failure 401 {object} models.APIError "Invalid old password"
 // @Router /api/user/change_password [patch]
 func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
-	userId := c.Locals("userId").(int)
+	userId, err := verifyUserToken(c)
+	if err != nil {
+		return err
+	}
 	var payload ChangePasswordPayload
-	err := c.Bind().JSON(&payload)
+	err = c.Bind().JSON(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")
 	}
@@ -171,7 +179,7 @@ func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
 // @Description Logs out the currently logged-in user by clearing the authentication token cookie.
 // @Tags auth
 // @Produce json
-// @Success 200 {string} string "User logged out successfully"
+// @Success 200
 // @Router /api/user/logout [post]
 func (h *Handlers) LogoutUser(c fiber.Ctx) error {
 	cookie := fiber.Cookie{
@@ -188,12 +196,16 @@ func (h *Handlers) LogoutUser(c fiber.Ctx) error {
 // @Summary Delete user account
 // @Description Deletes the logged-in user's account
 // @Tags user
-// @Success 200 {string} string "User deleted successfully"
+// @Success 200
 // @Failure 401 {object} models.APIError "Unauthorized"
+// @Failure 500 {object} models.APIError "Internal server error"
 // @Router /api/user/delete [delete]
 func (h *Handlers) DeleteUser(c fiber.Ctx) error {
-	userId := c.Locals("userId").(int)
-	err := h.services.DeleteUser(userId)
+	userId, err := verifyUserToken(c)
+	if err != nil {
+		return err
+	}
+	err = h.services.DeleteUser(userId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -216,7 +228,10 @@ func (h *Handlers) DeleteUser(c fiber.Ctx) error {
 // @Failure 401 {object} models.APIError "Unauthorized"
 // @Router /api/user/info [get]
 func (h *Handlers) GetUserInfo(c fiber.Ctx) error {
-	userId := c.Locals("userId").(int)
+	userId, err := verifyUserToken(c)
+	if err != nil {
+		return err
+	}
 	user, err := h.services.GetUserInfo(userId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -235,13 +250,17 @@ type ChangePhotoPayload struct {
 // @Accept json
 // @Produce json
 // @Param request body ChangePhotoPayload true "Photo Data"
-// @Success 200 {string} string "Photo updated successfully"
+// @Success 200
 // @Failure 400 {object} models.APIError "Invalid request data"
+// @Failure 401 {object} models.APIError "Unauthorized"
 // @Router /api/user/photo [patch]
 func (h *Handlers) UpdatePhoto(c fiber.Ctx) error {
-	userId := c.Locals("userId").(int)
+	userId, err := verifyUserToken(c)
+	if err != nil {
+		return err
+	}
 	var payload ChangePhotoPayload
-	err := c.Bind().JSON(&payload)
+	err = c.Bind().JSON(&payload)
 	if err != nil {
 		log.Println(fmt.Sprintf("error: %s", err.Error()))
 		return fiber.NewError(fiber.StatusBadRequest, errors.New("invalid request body").Error())
@@ -252,4 +271,17 @@ func (h *Handlers) UpdatePhoto(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, errors.New("failed to update photo").Error())
 	}
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func verifyUserToken(c fiber.Ctx) (int, error) {
+	userId, ok := c.Locals("userId").(int)
+	if userId <= 0 || !ok {
+		return 0, fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user id").Error())
+	}
+
+	if userRole, ok := c.Locals("userRole").(string); userRole != "user" || !ok {
+		return 0, fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user role").Error())
+	}
+
+	return userId, nil
 }
