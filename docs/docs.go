@@ -113,13 +113,19 @@ const docTemplate = `{
                 "summary": "Delete user account",
                 "responses": {
                     "200": {
-                        "description": "User deleted successfully",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/models.APIError"
                         }
@@ -199,10 +205,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Photo updated successfully",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Invalid request data",
@@ -285,7 +288,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Token in cookie",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -351,9 +354,6 @@ const docTemplate = `{
         "models.APIError": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer"
-                },
                 "message": {
                     "type": "string"
                 }

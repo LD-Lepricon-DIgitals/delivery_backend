@@ -29,8 +29,6 @@ definitions:
     type: object
   models.APIError:
     properties:
-      code:
-        type: integer
       message:
         type: string
     type: object
@@ -147,11 +145,15 @@ paths:
       description: Deletes the logged-in user's account
       responses:
         "200":
-          description: User deleted successfully
+          description: OK
           schema:
             type: string
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Internal server error
           schema:
             $ref: '#/definitions/models.APIError'
       summary: Delete user account
@@ -204,9 +206,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Photo updated successfully
-          schema:
-            type: string
+          description: OK
         "400":
           description: Invalid request data
           schema:
@@ -260,7 +260,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Token in cookie
+          description: OK
           schema:
             type: string
         "400":

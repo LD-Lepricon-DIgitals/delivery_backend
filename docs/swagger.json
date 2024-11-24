@@ -107,13 +107,19 @@
                 "summary": "Delete user account",
                 "responses": {
                     "200": {
-                        "description": "User deleted successfully",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/models.APIError"
                         }
@@ -193,10 +199,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Photo updated successfully",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Invalid request data",
@@ -279,7 +282,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Token in cookie",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -345,9 +348,6 @@
         "models.APIError": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer"
-                },
                 "message": {
                     "type": "string"
                 }
