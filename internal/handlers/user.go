@@ -13,7 +13,6 @@ import (
 // @Description Registers a new user and returns a token in a cookie
 // @Tags auth
 // @Accept json
-// @Produce json
 // @Param request body models.UserReg true "User Registration"
 // @Success 200 "Token in cookie"
 // @Failure 400 {object models.APIError "Invalid request data"
@@ -33,7 +32,7 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusConflict, "User already exists")
 	}
 
-	userId, err := h.services.CreateUser(params.UserLogin, params.UserName, params.UserSurname, params.UserAddress, params.UserPhone, params.UserPass)
+	userId, err := h.services.CreateUser(params)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -41,12 +40,12 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	cookie := fiber.Cookie{
+	cookie := &fiber.Cookie{
 		Name:  "token",
 		Value: token,
 	}
 	cookie.Partitioned = true
-	c.Cookie(&cookie)
+	c.Cookie(cookie)
 	return nil
 }
 
@@ -132,7 +131,7 @@ func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")
 	}
-	err = h.services.ChangeUserCredentials(userId, payload.UserLogin, payload.Name, payload.Surname, payload.Address, payload.Phone)
+	err = h.services.ChangeUserCredentials(userId, payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -189,6 +188,7 @@ func (h *Handlers) LogoutUser(c fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 	c.Locals("userId", nil)
+	c.Locals("role", nil)
 	return c.SendStatus(fiber.StatusOK)
 }
 
@@ -215,6 +215,7 @@ func (h *Handlers) DeleteUser(c fiber.Ctx) error {
 		MaxAge: -1,
 	}
 	c.Locals("userId", nil)
+	c.Locals("role", nil)
 	c.Cookie(&cookie)
 	return c.SendStatus(fiber.StatusOK)
 }
@@ -279,7 +280,7 @@ func verifyUserToken(c fiber.Ctx) (int, error) {
 		return 0, fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user id").Error())
 	}
 
-	if userRole, ok := c.Locals("userRole").(string); userRole != "user" || !ok {
+	if _, ok := c.Locals("userRole").(string); !ok {
 		return 0, fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user role").Error())
 	}
 
