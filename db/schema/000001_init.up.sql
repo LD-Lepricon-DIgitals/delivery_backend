@@ -32,24 +32,25 @@ CREATE TABLE IF NOT EXISTS users
 (
     id                   serial PRIMARY KEY,
     user_login           text NOT NULL UNIQUE,
-    user_hashed_password text NOT NULL
+    user_hashed_password text NOT NULL,
+    user_role text NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS workers
-(
-    id                     serial PRIMARY KEY,
-    worker_login           text NOT NULL UNIQUE,
-    worker_hashed_password text NOT NULL
-);
+-- CREATE TABLE IF NOT EXISTS workers
+-- (
+--     id                     serial PRIMARY KEY,
+--     worker_login           text NOT NULL UNIQUE,
+--     worker_hashed_password text NOT NULL
+-- );
 
-CREATE TABLE IF NOT EXISTS workers_info
-(
-    worker_id      int PRIMARY KEY NOT NULL,
-    worker_phone   text UNIQUE,
-    worker_name    text            NOT NULL,
-    worker_surname text            NOT NULL,
-    CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES workers (id) ON DELETE CASCADE
-);
+-- CREATE TABLE IF NOT EXISTS workers_info
+-- (
+--     worker_id      int PRIMARY KEY NOT NULL,
+--     worker_phone   text UNIQUE,
+--     worker_name    text            NOT NULL,
+--     worker_surname text            NOT NULL,
+--     CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES workers (id) ON DELETE CASCADE
+-- );
 
 CREATE TABLE IF NOT EXISTS users_info
 (
