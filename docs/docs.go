@@ -268,9 +268,6 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -381,6 +378,9 @@ const docTemplate = `{
                 "user_photo": {
                     "type": "string"
                 },
+                "user_role": {
+                    "type": "string"
+                },
                 "user_surname": {
                     "type": "string"
                 }
@@ -410,6 +410,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_phone": {
+                    "type": "string"
+                },
+                "user_role": {
                     "type": "string"
                 },
                 "user_surname": {

@@ -262,9 +262,6 @@
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -375,6 +372,9 @@
                 "user_photo": {
                     "type": "string"
                 },
+                "user_role": {
+                    "type": "string"
+                },
                 "user_surname": {
                     "type": "string"
                 }
@@ -404,6 +404,9 @@
                     "type": "string"
                 },
                 "user_phone": {
+                    "type": "string"
+                },
+                "user_role": {
                     "type": "string"
                 },
                 "user_surname": {

@@ -44,6 +44,8 @@ definitions:
         type: string
       user_photo:
         type: string
+      user_role:
+        type: string
       user_surname:
         type: string
     required:
@@ -64,6 +66,8 @@ definitions:
       user_password:
         type: string
       user_phone:
+        type: string
+      user_role:
         type: string
       user_surname:
         type: string
@@ -256,8 +260,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.UserReg'
-      produces:
-      - application/json
       responses:
         "200":
           description: Token in cookie
