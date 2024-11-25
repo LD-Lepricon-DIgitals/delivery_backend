@@ -18,7 +18,7 @@ func NewUserService(db *sqlx.DB) *UserService {
 	return &UserService{db: db}
 }
 
-func (u *UserService) CreateUser(login, name, surname, address, phoneNumber, password string) (int, error) {
+func (u *UserService) CreateUser(user models.UserReg) (int, error) {
 	var userId int
 
 	tx, err := u.db.Begin()
@@ -27,14 +27,14 @@ func (u *UserService) CreateUser(login, name, surname, address, phoneNumber, pas
 	}
 
 	// Вставка пользователя
-	err = tx.QueryRow("INSERT INTO users (user_login, user_hashed_password) VALUES ($1, $2) RETURNING id;", login, password).Scan(&userId)
+	err = tx.QueryRow("INSERT INTO users (user_login, user_hashed_password,user_role) VALUES ($1, $2) RETURNING id;", user.UserLogin, user.UserPass, user.Role).Scan(&userId)
 	if err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users table: %w", err)
 	}
 
 	// Вставка информации о пользователе
-	_, err = tx.Exec("INSERT INTO users_info (user_id, user_phone, user_name, user_surname, user_address,user_photo) VALUES ($1, $2, $3, $4, $5,&6)", userId, phoneNumber, name, surname, address, "")
+	_, err = tx.Exec("INSERT INTO users_info (user_id, user_phone, user_name, user_surname, user_address,user_photo) VALUES ($1, $2, $3, $4, $5, $6)", userId, user.UserPhone, user.UserName, user.UserSurname, user.UserAddress, "") //TODO: Add default photo
 	if err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users_info table: %w", err)
@@ -86,14 +86,14 @@ func (u *UserService) IsCorrectPassword(login string, passwordToCheck string) (b
 	return true, nil
 }
 
-func (u *UserService) ChangeUserCredentials(id int, login, name, surname, address, phone string) error {
+func (u *UserService) ChangeUserCredentials(id int, info models.UserInfo) error {
 	tx, err := u.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 
 	//Updating users
-	res, err := tx.Exec("UPDATE users SET user_login = $1 WHERE id = $2", login, id)
+	res, err := tx.Exec("UPDATE users SET user_login = $1 WHERE id = $2", info.UserLogin, id)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to insert into users table: %w", err)
@@ -105,7 +105,7 @@ func (u *UserService) ChangeUserCredentials(id int, login, name, surname, addres
 	}
 
 	//Updating users_info
-	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_address = $3 WHERE user_id = $4", name, surname, address, id)
+	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_address = $3, user_phone = $4 WHERE user_id = $4", info.Name, info.Surname, info.Address, info.Phone, id)
 	if err != nil {
 
 		tx.Rollback()

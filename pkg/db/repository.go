@@ -6,31 +6,30 @@ import (
 )
 
 type UserServices interface {
-	CreateUser(login, name, surname, address, phoneNumber, password string) (int, error)
+	CreateUser(user models.UserReg) (int, error)
 	GetUserId(login string) (int, error)
 	IsCorrectPassword(login string, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
-	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
+	ChangeUserCredentials(id int, info models.UserInfo) error
 	ChangePassword(id int, password string) error //14
 	DeleteUser(id int) error
 	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
 	GetUserInfo(id int) (models.UserInfo, error)
 	UpdatePhoto(photoString string, userId int) error
 }
-type WorkerServices interface {
-	CreateWorker(login, name, surname, address, phoneNumber, password string) (int, error)
-	GetWorkerId(login string) (int, error)
-	IsCorrectWorkerPassword(login string, password string) (bool, error)
-	IfWorkerExists(login string) (bool, error)
-	ChangeWorkerCredentials(id int, login, name, surname, address, phone string) error
-	ChangeWorkerPassword(id int, password string) error //14
-	DeleteWorker(id int) error
-	IsCorrectWorkerPasswordId(id int, passwordToCheck string) (bool, error)
-	GetWorkerInfo(id int) (models.WorkerInfo, error)
-	UpdateWorkerPhoto(photoString string, userId int) error
-}
 
 type AdminServices interface {
+}
+
+type WorkerServices interface {
+	ConfirmOrder(orderId int, workerId int) error
+	DeclineOrder(orderId int) error
+}
+
+type OrderServices interface {
+	GetWorkerOrders(int) ([]models.Order, error)
+	CreateOrder(models.Order) (int, error)
+	GetOrder(int) (models.Order, error)
 }
 
 type DishServices interface {
@@ -44,13 +43,14 @@ type DishServices interface {
 }
 
 type ReviewServices interface {
+	PostReview(int, string) error
 }
 type Repository struct {
 	UserServices
-	WorkerServices
 	AdminServices
 	DishServices
 	ReviewServices
+	WorkerServices
 }
 
 func NewRepository(db *sqlx.DB) *Repository {

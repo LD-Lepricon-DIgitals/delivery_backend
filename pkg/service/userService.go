@@ -13,8 +13,8 @@ func NewUserService(repo *db.Repository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (u *UserService) CreateUser(login, name, surname, address, phoneNumber, password string) (int, error) {
-	return u.repo.CreateUser(login, name, surname, address, phoneNumber, password)
+func (u *UserService) CreateUser(user models.UserReg) (int, error) {
+	return u.repo.CreateUser(user)
 }
 func (u *UserService) GetUserId(login string) (int, error) {
 	return u.repo.GetUserId(login)
@@ -26,9 +26,9 @@ func (u *UserService) IfUserExists(login string) (bool, error) { //TODO: id
 	return u.repo.IfUserExists(login)
 }
 
-func (u *UserService) ChangeUserCredentials(id int, login, name, surname, address, phone string) error {
+func (u *UserService) ChangeUserCredentials(id int, info models.UserInfo) error {
 
-	return u.repo.ChangeUserCredentials(id, login, name, surname, address, phone)
+	return u.repo.ChangeUserCredentials(id, info)
 }
 
 func (u *UserService) ChangePassword(id int, password string) error {

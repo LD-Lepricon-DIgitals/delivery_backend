@@ -7,11 +7,11 @@ import (
 )
 
 type UserServices interface {
-	CreateUser(login, name, surname, address, phoneNumber, password string) (int, error)
+	CreateUser(user models.UserReg) (int, error)
 	GetUserId(login string) (int, error)
 	IsCorrectPassword(login string, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
-	ChangeUserCredentials(id int, login, name, surname, address, phone string) error
+	ChangeUserCredentials(id int, info models.UserInfo) error
 	ChangePassword(id int, password string) error
 	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
 	DeleteUser(id int) error //14
@@ -20,16 +20,8 @@ type UserServices interface {
 }
 
 type WorkerServices interface {
-	CreateWorker(login, name, surname, address, phoneNumber, password string) (int, error)
-	GetWorkerId(login string) (int, error)
-	IsCorrectWorkerPassword(login string, password string) (bool, error)
-	IfWorkerExists(login string) (bool, error)
-	ChangeWorkerCredentials(id int, login, name, surname, address, phone string) error
-	ChangeWorkerPassword(id int, password string) error //14
-	DeleteWorker(id int) error
-	IsCorrectWorkerPasswordId(id int, passwordToCheck string) (bool, error)
-	GetWorkerInfo(id int) (models.WorkerInfo, error)
-	UpdateWorkerPhoto(photoString string, userId int) error
+	ConfirmOrder(orderId int, workerId int) error
+	DeclineOrder(orderId int) error
 }
 
 type AdminServices interface {
@@ -55,8 +47,8 @@ type AuthServices interface {
 
 type Service struct {
 	UserServices
-	WorkerServices
 	AdminServices
+	WorkerServices
 	DishServices
 	ReviewServices
 	AuthServices
