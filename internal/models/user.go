@@ -9,6 +9,7 @@ type User struct {
 	Surname  string `db:"user_surname"`
 	Address  string `db:"user_adress"`
 	Photo    string `db:"user_photo"`
+	Role     string `db:"user_role"`
 }
 
 type UserInfo struct {
@@ -18,6 +19,7 @@ type UserInfo struct {
 	Surname   string `json:"user_surname" validate:"required"`
 	Address   string `json:"user_address" validate:"required"`
 	Photo     string `json:"user_photo"`
+	Role      string `json:"user_role"`
 }
 
 type UserReg struct {
@@ -27,4 +29,5 @@ type UserReg struct {
 	UserAddress string `json:"user_address" validate:"required"`
 	UserPhone   string `json:"user_phone" validate:"required"`
 	UserPass    string `json:"user_password" validate:"required"`
+	Role        string `json:"user_role"`
 }
