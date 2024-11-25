@@ -1,7 +1,6 @@
 package db
 
 import (
-	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/handlers"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/jmoiron/sqlx"
 )
