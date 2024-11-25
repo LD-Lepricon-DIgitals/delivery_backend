@@ -26,7 +26,7 @@ func (u *UserService) IfUserExists(login string) (bool, error) { //TODO: id
 	return u.repo.IfUserExists(login)
 }
 
-func (u *UserService) ChangeUserCredentials(id int, info models.UserInfo) error {
+func (u *UserService) ChangeUserCredentials(id int, info models.ChangeUserCredsPayload) error {
 
 	return u.repo.ChangeUserCredentials(id, info)
 }

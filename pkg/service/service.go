@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/config"
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/handlers"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
@@ -11,7 +12,7 @@ type UserServices interface {
 	GetUserId(login string) (int, error)
 	IsCorrectPassword(login string, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
-	ChangeUserCredentials(id int, info models.UserInfo) error
+	ChangeUserCredentials(id int, info models.ChangeUserCredsPayload) error
 	ChangePassword(id int, password string) error
 	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
 	DeleteUser(id int) error //14

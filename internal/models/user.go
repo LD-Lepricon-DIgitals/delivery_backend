@@ -18,8 +18,8 @@ type UserInfo struct {
 	Name      string `json:"user_name" validate:"required"`
 	Surname   string `json:"user_surname" validate:"required"`
 	Address   string `json:"user_address" validate:"required"`
-	Photo     string `json:"user_photo"`
-	Role      string `json:"user_role"`
+	Photo     string `json:"user_photo" validate:"required"`
+	Role      string `json:"user_role" validate:"required"`
 }
 
 type UserReg struct {
@@ -30,4 +30,12 @@ type UserReg struct {
 	UserPhone   string `json:"user_phone" validate:"required"`
 	UserPass    string `json:"user_password" validate:"required"`
 	Role        string `json:"user_role"`
+}
+
+type ChangeUserCredsPayload struct {
+	UserLogin string `json:"user_login" validate:"required"`
+	Phone     string `json:"user_phone" validate:"required"`
+	Name      string `json:"user_name" validate:"required"`
+	Surname   string `json:"user_surname" validate:"required"`
+	Address   string `json:"user_address" validate:"required"`
 }

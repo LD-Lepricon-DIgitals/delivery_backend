@@ -116,7 +116,7 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param request body models.UserInfo true "Updated User Info"
+// @Param request body models.ChangeUserCredsPayload true "Updated User Creds"
 // @Success 200
 // @Failure 400 {object} models.APIError "Invalid request data"
 // @Failure 401 {object} models.APIError "Unauthorized"
@@ -126,7 +126,7 @@ func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	var payload models.UserInfo
+	var payload models.ChangeUserCredsPayload
 	err = c.Bind().JSON(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request data")

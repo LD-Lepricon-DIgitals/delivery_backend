@@ -86,7 +86,7 @@ func (u *UserService) IsCorrectPassword(login string, passwordToCheck string) (b
 	return true, nil
 }
 
-func (u *UserService) ChangeUserCredentials(id int, info models.UserInfo) error {
+func (u *UserService) ChangeUserCredentials(id int, info models.ChangeUserCredsPayload) error {
 	tx, err := u.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)

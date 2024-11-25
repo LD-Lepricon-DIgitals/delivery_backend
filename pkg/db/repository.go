@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/handlers"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -10,7 +11,7 @@ type UserServices interface {
 	GetUserId(login string) (int, error)
 	IsCorrectPassword(login string, password string) (bool, error)
 	IfUserExists(login string) (bool, error)
-	ChangeUserCredentials(id int, info models.UserInfo) error
+	ChangeUserCredentials(id int, info models.ChangeUserCredsPayload) error
 	ChangePassword(id int, password string) error //14
 	DeleteUser(id int) error
 	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
