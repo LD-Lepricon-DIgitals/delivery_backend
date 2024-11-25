@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/config"
-	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/handlers"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/pkg/db"
 )
