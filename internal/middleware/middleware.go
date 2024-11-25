@@ -14,12 +14,15 @@ func NewMiddleware(srv *service.Service) *Middleware {
 	return &Middleware{srv}
 }
 
-func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
+func (m *Middleware) UserAuthMiddleware(c fiber.Ctx) error {
 	token := c.Cookies("token")
 	if token == "" {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	userId, role, err := m.srv.AuthServices.ParseToken(token)
+	if role != "user" && role != "worker" && role != "admin" {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
