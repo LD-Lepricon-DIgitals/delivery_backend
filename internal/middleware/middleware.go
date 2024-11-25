@@ -14,7 +14,7 @@ func NewMiddleware(srv *service.Service) *Middleware {
 	return &Middleware{srv}
 }
 
-func (m *Middleware) UserAuthMiddleware(c fiber.Ctx) error {
+func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
 	token := c.Cookies("token")
 	if token == "" {
 		return c.SendStatus(fiber.StatusUnauthorized)
