@@ -11,10 +11,10 @@ import (
 // @Description Retrieve a list of all available dishes
 // @Tags Dishes
 // @Produce json
-// @Success 200 {array} []Dish "List of dishes"
-// @Failure 404 {object} fiber.Error "No dishes found"
-// @Failure 500 {object} fiber.Error "Failed to retrieve dishes"
-// @Router /dishes [get]
+// @Success 200 {array} []models.Dish "List of dishes"
+// @Failure 404 {object} models.APIError "No dishes found"
+// @Failure 500 {object} models.APIError "Failed to retrieve dishes"
+// @Router /api/dishes [get]
 func (h *Handlers) GetDishes(ctx fiber.Ctx) error {
 	dishes, err := h.services.GetDishes()
 	if err != nil {
@@ -38,14 +38,14 @@ type AddDishPayload struct {
 // AddDish godoc
 // @Summary Add a new dish
 // @Description Create a new dish with the provided details
-// @Tags Dishes
+// @Tags Dishes/Secure
 // @Accept json
 // @Produce json
 // @Param dish body AddDishPayload true "Dish details"
 // @Success 201 {object} map[string]int "Dish created successfully"
-// @Failure 400 {object} fiber.Error "Invalid request body"
-// @Failure 500 {object} fiber.Error "Failed to add dish"
-// @Router /dishes [post]
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 500 {object} models.APIError "Failed to add dish"
+// @Router /api/dishes/admin/add [post]
 func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 	var payload AddDishPayload
 	err := ctx.Bind().Body(&payload)
@@ -64,12 +64,12 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 // DeleteDish godoc
 // @Summary Delete a dish by ID
 // @Description Remove a dish from the system by its ID
-// @Tags Dishes
+// @Tags Dishes/Secure
 // @Param id path int true "Dish ID"
 // @Success 200 "Dish deleted successfully"
-// @Failure 400 {object} fiber.Error "Invalid dish ID"
-// @Failure 500 {object} fiber.Error "Failed to delete dish"
-// @Router /dishes/{id} [delete]
+// @Failure 400 {object} models.APIError "Invalid dish ID"
+// @Failure 500 {object} models.APIError "Failed to delete dish"
+// @Router /api/dishes/admin/delete/{id} [delete]
 func (h *Handlers) DeleteDish(ctx fiber.Ctx) error {
 	dishId := ctx.Params("id")
 	id, err := strconv.Atoi(dishId)
@@ -93,14 +93,14 @@ type ChangeDishPayload struct {
 // ChangeDish godoc
 // @Summary Update dish details
 // @Description Update the details of an existing dish
-// @Tags Dishes
+// @Tags Dishes/Secure
 // @Accept json
 // @Produce json
 // @Param dish body ChangeDishPayload true "Dish details"
 // @Success 200 "Dish updated successfully"
-// @Failure 400 {object} fiber.Error "Invalid request body"
-// @Failure 500 {object} fiber.Error "Failed to update dish"
-// @Router /dishes [put]
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 500 {object} models.APIError "Failed to update dish"
+// @Router /api/dishes/admin/update [put]
 func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
 	var payload ChangeDishPayload
 	err := ctx.Bind().Body(&payload)
@@ -125,11 +125,11 @@ type GetDishesByCategoryPayload struct {
 // @Accept json
 // @Produce json
 // @Param category body GetDishesByCategoryPayload true "Category details"
-// @Success 200 {array} []Dish "List of dishes"
-// @Failure 400 {object} fiber.Error "Invalid request body"
-// @Failure 404 {object} fiber.Error "No dishes found"
-// @Failure 500 {object} fiber.Error "Failed to retrieve dishes"
-// @Router /dishes/category [post]
+// @Success 200 {array} []models.Dish "List of dishes"
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 404 {object} models.APIError "No dishes found"
+// @Failure 500 {object} models.APIError "Failed to retrieve dishes"
+// @Router /api/dishes/by_category [post]
 func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
 	var payload GetDishesByCategoryPayload
 	err := ctx.Bind().Body(&payload)
@@ -152,11 +152,11 @@ func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
 // @Description Retrieve a specific dish by its ID
 // @Tags Dishes
 // @Param dish_id path int true "Dish ID"
-// @Success 200 {object} Dish "Dish details"
-// @Failure 400 {object} fiber.Error "Invalid dish ID"
-// @Failure 404 {object} fiber.Error "Dish not found"
-// @Failure 500 {object} fiber.Error "Failed to retrieve dish"
-// @Router /dishes/{dish_id} [get]
+// @Success 200 {object} models.Dish "Dish details"
+// @Failure 400 {object} models.APIError "Invalid dish ID"
+// @Failure 404 {object} models.APIError "Dish not found"
+// @Failure 500 {object} models.APIError "Failed to retrieve dish"
+// @Router /api/dishes/by_id/{dish_id} [get]
 func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
 	dishId := ctx.Params("dish_id")
 	id, err := strconv.Atoi(dishId)
@@ -176,11 +176,11 @@ func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
 // @Description Search for dishes by their name
 // @Tags Dishes
 // @Param name query string true "Dish name"
-// @Success 200 {array} []Dish "List of matching dishes"
-// @Failure 400 {object} fiber.Error "Query parameter 'name' is required"
-// @Failure 404 {object} fiber.Error "No dishes found"
-// @Failure 500 {object} fiber.Error "Failed to search dishes"
-// @Router /dishes/search [get]
+// @Success 200 {array} []models.Dish "List of matching dishes"
+// @Failure 400 {object} models.APIError "Query parameter 'name' is required"
+// @Failure 404 {object} models.APIError "No dishes found"
+// @Failure 500 {object} models.APIError "Failed to search dishes"
+// @Router /api/dishes/search/{name} [get]
 func (h *Handlers) SearchByName(ctx fiber.Ctx) error {
 	name := ctx.Query("name")
 	if name == "" {

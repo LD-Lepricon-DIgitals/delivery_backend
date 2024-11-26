@@ -1,5 +1,52 @@
 basePath: /
 definitions:
+  handlers.AddDishPayload:
+    properties:
+      dish_category:
+        type: integer
+      dish_description:
+        type: string
+      dish_name:
+        type: string
+      dish_photo:
+        type: string
+      dish_price:
+        type: number
+      dish_weight:
+        type: number
+    required:
+    - dish_category
+    - dish_description
+    - dish_name
+    - dish_photo
+    - dish_price
+    - dish_weight
+    type: object
+  handlers.ChangeDishPayload:
+    properties:
+      dish_category:
+        type: integer
+      dish_description:
+        type: string
+      dish_name:
+        type: string
+      dish_photo:
+        type: string
+      dish_price:
+        type: number
+      dish_weight:
+        type: number
+      id:
+        type: integer
+    required:
+    - dish_category
+    - dish_description
+    - dish_name
+    - dish_photo
+    - dish_price
+    - dish_weight
+    - id
+    type: object
   handlers.ChangePasswordPayload:
     properties:
       new_password:
@@ -16,6 +63,13 @@ definitions:
         type: string
     required:
     - photo
+    type: object
+  handlers.GetDishesByCategoryPayload:
+    properties:
+      dish_category:
+        type: string
+    required:
+    - dish_category
     type: object
   handlers.LoginPayload:
     properties:
@@ -50,6 +104,29 @@ definitions:
     - user_name
     - user_phone
     - user_surname
+    type: object
+  models.Dish:
+    properties:
+      dish_category:
+        type: string
+      dish_description:
+        type: string
+      dish_name:
+        type: string
+      dish_photo_url:
+        type: string
+      dish_price:
+        type: number
+      dish_rating:
+        type: integer
+      dish_weight:
+        type: number
+    required:
+    - dish_description
+    - dish_name
+    - dish_photo_url
+    - dish_price
+    - dish_weight
     type: object
   models.UserInfo:
     properties:
@@ -109,6 +186,214 @@ info:
   title: Delivery Backend API
   version: "1.0"
 paths:
+  /api/dishes:
+    get:
+      description: Retrieve a list of all available dishes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of dishes
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.Dish'
+              type: array
+            type: array
+        "404":
+          description: No dishes found
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to retrieve dishes
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Get all dishes
+      tags:
+      - Dishes
+  /api/dishes/admin/add:
+    post:
+      consumes:
+      - application/json
+      description: Create a new dish with the provided details
+      parameters:
+      - description: Dish details
+        in: body
+        name: dish
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AddDishPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Dish created successfully
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to add dish
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Add a new dish
+      tags:
+      - Dishes/Secure
+  /api/dishes/admin/delete/{id}:
+    delete:
+      description: Remove a dish from the system by its ID
+      parameters:
+      - description: Dish ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Dish deleted successfully
+        "400":
+          description: Invalid dish ID
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to delete dish
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Delete a dish by ID
+      tags:
+      - Dishes/Secure
+  /api/dishes/admin/update:
+    put:
+      consumes:
+      - application/json
+      description: Update the details of an existing dish
+      parameters:
+      - description: Dish details
+        in: body
+        name: dish
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ChangeDishPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Dish updated successfully
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to update dish
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Update dish details
+      tags:
+      - Dishes/Secure
+  /api/dishes/by_category:
+    post:
+      consumes:
+      - application/json
+      description: Retrieve a list of dishes based on their category
+      parameters:
+      - description: Category details
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GetDishesByCategoryPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of dishes
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.Dish'
+              type: array
+            type: array
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "404":
+          description: No dishes found
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to retrieve dishes
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Get dishes by category
+      tags:
+      - Dishes
+  /api/dishes/by_id/{dish_id}:
+    get:
+      description: Retrieve a specific dish by its ID
+      parameters:
+      - description: Dish ID
+        in: path
+        name: dish_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Dish details
+          schema:
+            $ref: '#/definitions/models.Dish'
+        "400":
+          description: Invalid dish ID
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "404":
+          description: Dish not found
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to retrieve dish
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Get a dish by ID
+      tags:
+      - Dishes
+  /api/dishes/search/{name}:
+    get:
+      description: Search for dishes by their name
+      parameters:
+      - description: Dish name
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: List of matching dishes
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.Dish'
+              type: array
+            type: array
+        "400":
+          description: Query parameter 'name' is required
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "404":
+          description: No dishes found
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to search dishes
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Search dishes by name
+      tags:
+      - Dishes
   /api/user/change:
     patch:
       consumes:
