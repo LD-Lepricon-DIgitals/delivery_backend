@@ -33,12 +33,12 @@ const docTemplate = `{
                 "summary": "Update user credentials",
                 "parameters": [
                     {
-                        "description": "Updated User Info",
+                        "description": "Updated User Creds",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserInfo"
+                            "$ref": "#/definitions/models.ChangeUserCredsPayload"
                         }
                     }
                 ],
@@ -353,6 +353,33 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ChangeUserCredsPayload": {
+            "type": "object",
+            "required": [
+                "user_address",
+                "user_login",
+                "user_name",
+                "user_phone",
+                "user_surname"
+            ],
+            "properties": {
+                "user_address": {
+                    "type": "string"
+                },
+                "user_login": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
+                },
+                "user_phone": {
+                    "type": "string"
+                },
+                "user_surname": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UserInfo": {
             "type": "object",
             "required": [
@@ -360,6 +387,8 @@ const docTemplate = `{
                 "user_login",
                 "user_name",
                 "user_phone",
+                "user_photo",
+                "user_role",
                 "user_surname"
             ],
             "properties": {

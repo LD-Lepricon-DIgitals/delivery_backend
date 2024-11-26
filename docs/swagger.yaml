@@ -32,6 +32,25 @@ definitions:
       message:
         type: string
     type: object
+  models.ChangeUserCredsPayload:
+    properties:
+      user_address:
+        type: string
+      user_login:
+        type: string
+      user_name:
+        type: string
+      user_phone:
+        type: string
+      user_surname:
+        type: string
+    required:
+    - user_address
+    - user_login
+    - user_name
+    - user_phone
+    - user_surname
+    type: object
   models.UserInfo:
     properties:
       user_address:
@@ -53,6 +72,8 @@ definitions:
     - user_login
     - user_name
     - user_phone
+    - user_photo
+    - user_role
     - user_surname
     type: object
   models.UserReg:
@@ -94,12 +115,12 @@ paths:
       - application/json
       description: Allows the logged-in user to update their details
       parameters:
-      - description: Updated User Info
+      - description: Updated User Creds
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.UserInfo'
+          $ref: '#/definitions/models.ChangeUserCredsPayload'
       produces:
       - application/json
       responses:
