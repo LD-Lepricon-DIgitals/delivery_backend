@@ -29,7 +29,7 @@ type UserReg struct {
 	UserAddress string `json:"user_address" validate:"required"`
 	UserPhone   string `json:"user_phone" validate:"required"`
 	UserPass    string `json:"user_password" validate:"required"`
-	Role        string `json:"user_role"`
+	Role        string `json:"user_role" validate:"required"`
 }
 
 type ChangeUserCredsPayload struct {
