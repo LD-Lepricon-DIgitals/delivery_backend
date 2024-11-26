@@ -66,9 +66,9 @@ func (s *Server) InitRoutes() {
 	dishes := api.Group("/dishes")
 	dishes.Get("/", s.h.GetDishes)
 	dishes.Get("/by_id/:dish_id", s.h.GetDishById)
-	dishes.Get("/by_category", s.h.GetDishesByCategory)
-	dishes.Get("/search", s.h.SearchByName)
-	secureDishes := dishes.Group("/") // TODO : add middleware
+	dishes.Post("/by_category", s.h.GetDishesByCategory)
+	dishes.Get("/search/:name", s.h.SearchByName)
+	secureDishes := dishes.Group("/admin") // TODO : add middleware
 	secureDishes.Post("/add", s.h.AddDish)
 	secureDishes.Delete("/delete/:id", s.h.DeleteDish)
 	secureDishes.Put("/update", s.h.ChangeDish)

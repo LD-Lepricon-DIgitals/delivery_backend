@@ -27,7 +27,7 @@ func (u *UserService) CreateUser(user models.UserReg) (int, error) {
 	}
 
 	// Вставка пользователя
-	err = tx.QueryRow("INSERT INTO users (user_login, user_hashed_password,user_role) VALUES ($1, $2) RETURNING id;", user.UserLogin, user.UserPass, user.Role).Scan(&userId)
+	err = tx.QueryRow("INSERT INTO users (user_login, user_hashed_password,user_role) VALUES ($1, $2,$3) RETURNING id;", user.UserLogin, user.UserPass, user.Role).Scan(&userId)
 	if err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("failed to insert into users table: %w", err)
