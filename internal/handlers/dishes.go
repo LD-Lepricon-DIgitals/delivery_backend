@@ -6,6 +6,15 @@ import (
 	"strconv"
 )
 
+// GetDishes godoc
+// @Summary Get all dishes
+// @Description Retrieve a list of all available dishes
+// @Tags Dishes
+// @Produce json
+// @Success 200 {array} []models.Dish "List of dishes"
+// @Failure 404 {object} models.APIError "No dishes found"
+// @Failure 500 {object} models.APIError "Failed to retrieve dishes"
+// @Router /api/dishes [get]
 func (h *Handlers) GetDishes(ctx fiber.Ctx) error {
 	dishes, err := h.services.GetDishes()
 	if err != nil {
@@ -26,6 +35,17 @@ type AddDishPayload struct {
 	Category    int     `json:"dish_category" binding:"required"`
 }
 
+// AddDish godoc
+// @Summary Add a new dish
+// @Description Create a new dish with the provided details
+// @Tags Dishes/Secure
+// @Accept json
+// @Produce json
+// @Param dish body AddDishPayload true "Dish details"
+// @Success 201 {object} map[string]int "Dish created successfully"
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 500 {object} models.APIError "Failed to add dish"
+// @Router /api/dishes/admin/add [post]
 func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 	var payload AddDishPayload
 	err := ctx.Bind().Body(&payload)
@@ -41,6 +61,15 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 	})
 }
 
+// DeleteDish godoc
+// @Summary Delete a dish by ID
+// @Description Remove a dish from the system by its ID
+// @Tags Dishes/Secure
+// @Param id path int true "Dish ID"
+// @Success 200 "Dish deleted successfully"
+// @Failure 400 {object} models.APIError "Invalid dish ID"
+// @Failure 500 {object} models.APIError "Failed to delete dish"
+// @Router /api/dishes/admin/delete/{id} [delete]
 func (h *Handlers) DeleteDish(ctx fiber.Ctx) error {
 	dishId := ctx.Params("id")
 	id, err := strconv.Atoi(dishId)
@@ -61,6 +90,17 @@ type ChangeDishPayload struct {
 	Category    int     `json:"dish_category" binding:"required"`
 }
 
+// ChangeDish godoc
+// @Summary Update dish details
+// @Description Update the details of an existing dish
+// @Tags Dishes/Secure
+// @Accept json
+// @Produce json
+// @Param dish body ChangeDishPayload true "Dish details"
+// @Success 200 "Dish updated successfully"
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 500 {object} models.APIError "Failed to update dish"
+// @Router /api/dishes/admin/update [put]
 func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
 	var payload ChangeDishPayload
 	err := ctx.Bind().Body(&payload)
@@ -78,6 +118,18 @@ type GetDishesByCategoryPayload struct {
 	Category string `json:"dish_category" binding:"required"`
 }
 
+// GetDishesByCategory godoc
+// @Summary Get dishes by category
+// @Description Retrieve a list of dishes based on their category
+// @Tags Dishes
+// @Accept json
+// @Produce json
+// @Param category body GetDishesByCategoryPayload true "Category details"
+// @Success 200 {array} []models.Dish "List of dishes"
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 404 {object} models.APIError "No dishes found"
+// @Failure 500 {object} models.APIError "Failed to retrieve dishes"
+// @Router /api/dishes/by_category [post]
 func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
 	var payload GetDishesByCategoryPayload
 	err := ctx.Bind().Body(&payload)
@@ -95,6 +147,16 @@ func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
 
+// GetDishById godoc
+// @Summary Get a dish by ID
+// @Description Retrieve a specific dish by its ID
+// @Tags Dishes
+// @Param dish_id path int true "Dish ID"
+// @Success 200 {object} models.Dish "Dish details"
+// @Failure 400 {object} models.APIError "Invalid dish ID"
+// @Failure 404 {object} models.APIError "Dish not found"
+// @Failure 500 {object} models.APIError "Failed to retrieve dish"
+// @Router /api/dishes/by_id/{dish_id} [get]
 func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
 	dishId := ctx.Params("dish_id")
 	id, err := strconv.Atoi(dishId)
@@ -109,6 +171,16 @@ func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(dish)
 }
 
+// SearchByName godoc
+// @Summary Search dishes by name
+// @Description Search for dishes by their name
+// @Tags Dishes
+// @Param name query string true "Dish name"
+// @Success 200 {array} []models.Dish "List of matching dishes"
+// @Failure 400 {object} models.APIError "Query parameter 'name' is required"
+// @Failure 404 {object} models.APIError "No dishes found"
+// @Failure 500 {object} models.APIError "Failed to search dishes"
+// @Router /api/dishes/search/{name} [get]
 func (h *Handlers) SearchByName(ctx fiber.Ctx) error {
 	name := ctx.Query("name")
 	if name == "" {

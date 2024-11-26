@@ -18,6 +18,323 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/dishes": {
+            "get": {
+                "description": "Retrieve a list of all available dishes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dishes"
+                ],
+                "summary": "Get all dishes",
+                "responses": {
+                    "200": {
+                        "description": "List of dishes",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.Dish"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No dishes found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve dishes",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dishes/admin/add": {
+            "post": {
+                "description": "Create a new dish with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dishes/Secure"
+                ],
+                "summary": "Add a new dish",
+                "parameters": [
+                    {
+                        "description": "Dish details",
+                        "name": "dish",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AddDishPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Dish created successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add dish",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dishes/admin/delete/{id}": {
+            "delete": {
+                "description": "Remove a dish from the system by its ID",
+                "tags": [
+                    "Dishes/Secure"
+                ],
+                "summary": "Delete a dish by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dish ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dish deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid dish ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete dish",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dishes/admin/update": {
+            "put": {
+                "description": "Update the details of an existing dish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dishes/Secure"
+                ],
+                "summary": "Update dish details",
+                "parameters": [
+                    {
+                        "description": "Dish details",
+                        "name": "dish",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ChangeDishPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dish updated successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update dish",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dishes/by_category": {
+            "post": {
+                "description": "Retrieve a list of dishes based on their category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dishes"
+                ],
+                "summary": "Get dishes by category",
+                "parameters": [
+                    {
+                        "description": "Category details",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetDishesByCategoryPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of dishes",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.Dish"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "No dishes found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve dishes",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dishes/by_id/{dish_id}": {
+            "get": {
+                "description": "Retrieve a specific dish by its ID",
+                "tags": [
+                    "Dishes"
+                ],
+                "summary": "Get a dish by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dish ID",
+                        "name": "dish_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dish details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Dish"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid dish ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Dish not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve dish",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dishes/search/{name}": {
+            "get": {
+                "description": "Search for dishes by their name",
+                "tags": [
+                    "Dishes"
+                ],
+                "summary": "Search dishes by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dish name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of matching dishes",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.Dish"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Query parameter 'name' is required",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "No dishes found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to search dishes",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/user/change": {
             "patch": {
                 "description": "Allows the logged-in user to update their details",
@@ -304,6 +621,72 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.AddDishPayload": {
+            "type": "object",
+            "required": [
+                "dish_category",
+                "dish_description",
+                "dish_name",
+                "dish_photo",
+                "dish_price",
+                "dish_weight"
+            ],
+            "properties": {
+                "dish_category": {
+                    "type": "integer"
+                },
+                "dish_description": {
+                    "type": "string"
+                },
+                "dish_name": {
+                    "type": "string"
+                },
+                "dish_photo": {
+                    "type": "string"
+                },
+                "dish_price": {
+                    "type": "number"
+                },
+                "dish_weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "handlers.ChangeDishPayload": {
+            "type": "object",
+            "required": [
+                "dish_category",
+                "dish_description",
+                "dish_name",
+                "dish_photo",
+                "dish_price",
+                "dish_weight",
+                "id"
+            ],
+            "properties": {
+                "dish_category": {
+                    "type": "integer"
+                },
+                "dish_description": {
+                    "type": "string"
+                },
+                "dish_name": {
+                    "type": "string"
+                },
+                "dish_photo": {
+                    "type": "string"
+                },
+                "dish_price": {
+                    "type": "number"
+                },
+                "dish_weight": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "handlers.ChangePasswordPayload": {
             "type": "object",
             "required": [
@@ -326,6 +709,17 @@ const docTemplate = `{
             ],
             "properties": {
                 "photo": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.GetDishesByCategoryPayload": {
+            "type": "object",
+            "required": [
+                "dish_category"
+            ],
+            "properties": {
+                "dish_category": {
                     "type": "string"
                 }
             }
@@ -377,6 +771,39 @@ const docTemplate = `{
                 },
                 "user_surname": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Dish": {
+            "type": "object",
+            "required": [
+                "dish_description",
+                "dish_name",
+                "dish_photo_url",
+                "dish_price",
+                "dish_weight"
+            ],
+            "properties": {
+                "dish_category": {
+                    "type": "string"
+                },
+                "dish_description": {
+                    "type": "string"
+                },
+                "dish_name": {
+                    "type": "string"
+                },
+                "dish_photo_url": {
+                    "type": "string"
+                },
+                "dish_price": {
+                    "type": "number"
+                },
+                "dish_rating": {
+                    "type": "integer"
+                },
+                "dish_weight": {
+                    "type": "number"
                 }
             }
         },
