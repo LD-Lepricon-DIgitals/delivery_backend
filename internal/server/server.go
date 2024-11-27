@@ -39,9 +39,10 @@ func (s *Server) Run() {
 	s.srv.Use(logger.New())
 	s.srv.Use(recover.New())
 	s.srv.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{"Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,X-CSRF-Token,Authorization"},
-		AllowMethods: []string{"GET,POST,PATCH,DELETE"},
+		AllowOrigins:     []string{"localhost:3000"},
+		AllowHeaders:     []string{"Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,X-CSRF-Token,Authorization"},
+		AllowMethods:     []string{"GET,POST,PATCH,DELETE"},
+		AllowCredentials: true,
 	}))
 	log.Println("Starting server... Let`s Go :)")
 	s.InitRoutes()
