@@ -186,7 +186,7 @@ func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
 	if err != nil {
 		return user, fmt.Errorf("failed to get user info: %w", err)
 	}
-	err = tx.QueryRow("SELECT user_phone, user_name, user_surname, user_address, user_photo FROM users_info WHERE user_id = $1", id).Scan(&user.Phone, &user.Name, &user.Surname, &user.Address, &user.Photo)
+	err = tx.QueryRow("SELECT user_phone, user_name, user_surname, user_address, user_photo. user_role FROM users_info WHERE user_id = $1", id).Scan(&user.Phone, &user.Name, &user.Surname, &user.Address, &user.Photo, &user.Role)
 	if err != nil {
 		return user, fmt.Errorf("failed to get user info: %w", err)
 	}
