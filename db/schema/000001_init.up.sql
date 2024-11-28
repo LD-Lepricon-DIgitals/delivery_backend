@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS orders
     worker_id   int,
     order_price float NOT NULL,
     CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES workers (id) ON DELETE CASCADE
+    CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS order_dishes

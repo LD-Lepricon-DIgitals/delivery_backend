@@ -40,6 +40,8 @@ type DishServices interface {
 	GetDishesByCategory(category string) ([]models.Dish, error)
 	GetDishById(id int) (models.Dish, error)
 	SearchByName(name string) ([]models.Dish, error)
+
+	//TODO: Dish Categories return
 }
 
 type ReviewServices interface {

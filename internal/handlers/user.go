@@ -122,7 +122,7 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 // @Failure 401 {object} models.APIError "Unauthorized"
 // @Router /api/user/change [patch]
 func (h *Handlers) ChangeUserCredentials(c fiber.Ctx) error {
-	userId, err := verifyUserToken(c)
+	userId, _, err := verifyUserToken(c)
 	if err != nil {
 		return err
 	}
@@ -155,7 +155,7 @@ type ChangePasswordPayload struct {
 // @Failure 401 {object} models.APIError "Invalid old password"
 // @Router /api/user/change_password [patch]
 func (h *Handlers) ChangeUserPassword(c fiber.Ctx) error {
-	userId, err := verifyUserToken(c)
+	userId, _, err := verifyUserToken(c)
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (h *Handlers) LogoutUser(c fiber.Ctx) error {
 // @Failure 500 {object} models.APIError "Internal server error"
 // @Router /api/user/delete [delete]
 func (h *Handlers) DeleteUser(c fiber.Ctx) error {
-	userId, err := verifyUserToken(c)
+	userId, _, err := verifyUserToken(c)
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func (h *Handlers) DeleteUser(c fiber.Ctx) error {
 // @Failure 401 {object} models.APIError "Unauthorized"
 // @Router /api/user/info [get]
 func (h *Handlers) GetUserInfo(c fiber.Ctx) error {
-	userId, err := verifyUserToken(c)
+	userId, _, err := verifyUserToken(c)
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ type ChangePhotoPayload struct {
 // @Failure 401 {object} models.APIError "Unauthorized"
 // @Router /api/user/photo [patch]
 func (h *Handlers) UpdatePhoto(c fiber.Ctx) error {
-	userId, err := verifyUserToken(c)
+	userId, _, err := verifyUserToken(c)
 	if err != nil {
 		return err
 	}
@@ -274,15 +274,16 @@ func (h *Handlers) UpdatePhoto(c fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func verifyUserToken(c fiber.Ctx) (int, error) {
+func verifyUserToken(c fiber.Ctx) (int, string, error) {
 	userId, ok := c.Locals("userId").(int)
 	if userId <= 0 || !ok {
-		return 0, fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user id").Error())
+		return 0, "", fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user id").Error())
 	}
 
-	if _, ok := c.Locals("userRole").(string); !ok {
-		return 0, fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user role").Error())
+	userRole, ok := c.Locals("userRole").(string)
+	if (userRole != "admin" && userRole != "user" && userRole != "worker") || !ok {
+		return 0, "", fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user role").Error())
 	}
 
-	return userId, nil
+	return userId, "", nil
 }

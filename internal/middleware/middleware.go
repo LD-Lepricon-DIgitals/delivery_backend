@@ -28,6 +28,6 @@ func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
 	}
 	log.Println(userId)
 	c.Locals("userId", userId)
-	c.Locals("role", role)
+	c.Locals("userRole", role)
 	return c.Next()
 }
