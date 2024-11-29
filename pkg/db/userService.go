@@ -105,7 +105,7 @@ func (u *UserService) ChangeUserCredentials(id int, info models.ChangeUserCredsP
 	}
 
 	//Updating users_info
-	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_address = $3, user_phone = $4 WHERE user_id = $4", info.Name, info.Surname, info.Address, info.Phone, id)
+	res, err = tx.Exec("UPDATE users_info SET user_name = $1, user_surname = $2, user_address = $3, user_phone = $4 WHERE user_id = $5", info.Name, info.Surname, info.Address, info.Phone, id)
 	if err != nil {
 
 		tx.Rollback()
