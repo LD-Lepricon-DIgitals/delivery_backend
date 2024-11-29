@@ -49,7 +49,7 @@ func (m *Middleware) AdminAuthMiddleware(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: invalid user id")
 	}
 	if userRole != "admin" {
-		return fiber.NewError(fiber.StatusUnauthorized, fmt.Sprintf("Invalid token: invalid role, expected admin got %s", userRole))
+		return fiber.NewError(fiber.StatusForbidden, fmt.Sprintf("Invalid token: invalid role, expected admin got %s", userRole))
 	}
 
 	c.Locals("userId", userId)
@@ -70,7 +70,7 @@ func (m *Middleware) WorkerAuthMiddleware(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: invalid user id")
 	}
 	if userRole != "worker" {
-		return fiber.NewError(fiber.StatusUnauthorized, fmt.Sprintf("Invalid token: invalid role, expected worker got %s", userRole))
+		return fiber.NewError(fiber.StatusForbidden, fmt.Sprintf("Invalid token: invalid role, expected worker got %s", userRole))
 	}
 
 	c.Locals("userId", userId)

@@ -77,6 +77,10 @@ func (s *Server) InitRoutes() {
 	secure.Post("/add", s.h.AddDish)
 	secure.Delete("/delete/:id", s.h.DeleteDish)
 	secure.Put("/update", s.h.ChangeDish)
+
+	//TODO: WORKER HANDLERS
+
+	//TODO: ORDER HANDLERS
 }
 
 func (s *Server) Stop() {
