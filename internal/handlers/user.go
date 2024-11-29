@@ -41,10 +41,13 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	cookie := &fiber.Cookie{
-		Name:  "token",
-		Value: token,
+		Name:        "token",
+		Value:       token,
+		Partitioned: true,
+		SameSite:    "None",
+		Secure:      true,
 	}
-	cookie.Partitioned = true
+
 	c.Cookie(cookie)
 	return nil
 }
@@ -102,8 +105,11 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	}
 	token, err = h.services.CreateToken(userId, "user")
 	cookie := fiber.Cookie{
-		Name:  "token",
-		Value: token,
+		Name:        "token",
+		Value:       token,
+		Partitioned: true,
+		SameSite:    "None",
+		Secure:      true,
 	}
 	cookie.Partitioned = true
 	c.Cookie(&cookie)
