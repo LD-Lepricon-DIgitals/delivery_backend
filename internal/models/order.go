@@ -8,3 +8,9 @@ type Order struct {
 	Price        float64     `json:"order_price" binding:"required"`
 	Dishes       []OrderDish `json:"dishes" binding:"required"` // Используем слайс OrderDish
 }
+
+type CreateOrder struct {
+	CustomerId int         `json:"customer_id" validation:"required"`
+	Dishes     []OrderDish `json:"dishes" validation:"required"`
+	Price      float64     `json:"order_price" validation:"required"`
+}
