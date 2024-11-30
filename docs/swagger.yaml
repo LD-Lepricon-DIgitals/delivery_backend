@@ -175,6 +175,7 @@ definitions:
     - user_name
     - user_password
     - user_phone
+    - user_role
     - user_surname
     type: object
 host: localhost:1317
@@ -236,6 +237,10 @@ paths:
           description: Invalid request body
           schema:
             $ref: '#/definitions/models.APIError'
+        "403":
+          description: Access forbidden
+          schema:
+            $ref: '#/definitions/models.APIError'
         "500":
           description: Failed to add dish
           schema:
@@ -257,6 +262,10 @@ paths:
           description: Dish deleted successfully
         "400":
           description: Invalid dish ID
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "403":
+          description: Access forbidden
           schema:
             $ref: '#/definitions/models.APIError'
         "500":
@@ -285,6 +294,10 @@ paths:
           description: Dish updated successfully
         "400":
           description: Invalid request body
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "403":
+          description: Access forbidden
           schema:
             $ref: '#/definitions/models.APIError'
         "500":

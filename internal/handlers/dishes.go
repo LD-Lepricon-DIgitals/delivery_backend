@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v3"
 	"log"
 	"strconv"
@@ -44,11 +45,16 @@ type AddDishPayload struct {
 // @Param dish body AddDishPayload true "Dish details"
 // @Success 201 {object} map[string]int "Dish created successfully"
 // @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 403 {object} models.APIError "Access forbidden"
 // @Failure 500 {object} models.APIError "Failed to add dish"
 // @Router /api/dishes/admin/add [post]
 func (h *Handlers) AddDish(ctx fiber.Ctx) error {
+	err := validateAdmin(ctx)
+	if err != nil {
+		return err
+	}
 	var payload AddDishPayload
-	err := ctx.Bind().Body(&payload)
+	err = ctx.Bind().Body(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
@@ -68,9 +74,14 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 // @Param id path int true "Dish ID"
 // @Success 200 "Dish deleted successfully"
 // @Failure 400 {object} models.APIError "Invalid dish ID"
+// @Failure 403 {object} models.APIError "Access forbidden"
 // @Failure 500 {object} models.APIError "Failed to delete dish"
 // @Router /api/dishes/admin/delete/{id} [delete]
 func (h *Handlers) DeleteDish(ctx fiber.Ctx) error {
+	err := validateAdmin(ctx)
+	if err != nil {
+		return err
+	}
 	dishId := ctx.Params("id")
 	id, err := strconv.Atoi(dishId)
 	err = h.services.DeleteDish(id)
@@ -99,11 +110,17 @@ type ChangeDishPayload struct {
 // @Param dish body ChangeDishPayload true "Dish details"
 // @Success 200 "Dish updated successfully"
 // @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 403 {object} models.APIError "Access forbidden"
 // @Failure 500 {object} models.APIError "Failed to update dish"
 // @Router /api/dishes/admin/update [put]
 func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
+
+	err := validateAdmin(ctx)
+	if err != nil {
+		return err
+	}
 	var payload ChangeDishPayload
-	err := ctx.Bind().Body(&payload)
+	err = ctx.Bind().Body(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
@@ -194,4 +211,15 @@ func (h *Handlers) SearchByName(ctx fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Dish not found")
 	}
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
+}
+
+func validateAdmin(ctx fiber.Ctx) error {
+	userRole, ok := ctx.Locals("role").(string)
+	if !ok {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: can not parse")
+	}
+	if userRole != "admin" {
+		return fiber.NewError(fiber.StatusForbidden, fmt.Sprintf("Invalid token: invalid role, expected worker got %s", userRole))
+	}
+	return nil
 }

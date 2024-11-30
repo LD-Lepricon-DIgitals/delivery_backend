@@ -96,6 +96,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.APIError"
                         }
                     },
+                    "403": {
+                        "description": "Access forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
                     "500": {
                         "description": "Failed to add dish",
                         "schema": {
@@ -127,6 +133,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid dish ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Access forbidden",
                         "schema": {
                             "$ref": "#/definitions/models.APIError"
                         }
@@ -170,6 +182,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Access forbidden",
                         "schema": {
                             "$ref": "#/definitions/models.APIError"
                         }
@@ -850,6 +868,7 @@ const docTemplate = `{
                 "user_name",
                 "user_password",
                 "user_phone",
+                "user_role",
                 "user_surname"
             ],
             "properties": {
