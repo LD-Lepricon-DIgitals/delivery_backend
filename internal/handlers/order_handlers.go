@@ -82,21 +82,8 @@ func (h *Handlers) DeleteOrder(ctx fiber.Ctx) error {
 }
 
 func (h *Handlers) GetUserOrders(ctx fiber.Ctx) error {
-	userId := ctx.Params("userId")
 	uid, _, err := verifyUserToken(ctx)
-	id, err := strconv.Atoi(userId)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	if id <= 0 {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid user id")
-	}
-
-	if uid != id {
-		return fiber.NewError(fiber.StatusForbidden, "User ID in params is not equal user id in token")
-	}
-
-	orders, err := h.services.GetUsersOrders(id)
+	orders, err := h.services.GetUsersOrders(uid)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
