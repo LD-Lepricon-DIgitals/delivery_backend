@@ -70,3 +70,19 @@ func (d *DishService) SearchByName(name string) ([]models.Dish, error) {
 	}
 	return dishes, nil
 }
+
+func (d *DishService) AddCategory(categoryName string) (int, error) {
+	id, err := d.repo.AddCategory(categoryName)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func (d *DishService) GetCategories() ([]models.Category, error) {
+	categories, err := d.repo.GetCategories()
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
+}

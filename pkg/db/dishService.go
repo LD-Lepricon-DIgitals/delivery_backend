@@ -75,7 +75,7 @@ func (d *DishService) ChangeDish(id int, name string, price, weight float64, des
 		return errors.New("Error checking dish count: " + err.Error())
 	}
 	if res == 1 {
-		res, err := d.db.Exec(updateQuery, name, price, weight, description, photo, id, category)
+		res, err := d.db.Exec(updateQuery, name, price, weight, description, photo, category, id)
 		rowsAffected, err := res.RowsAffected()
 		if err != nil {
 			return errors.New("Error after affecting rows: " + err.Error())
@@ -141,4 +141,35 @@ func (d *DishService) SearchByName(name string) ([]models.Dish, error) {
 		return nil, errors.New("Error iterating rows: " + err.Error())
 	}
 	return dishes, nil
+}
+
+func (d *DishService) AddCategory(categoryName string) (int, error) {
+	var id int
+	query := "INSERT INTO categories (category_name) VALUES ($1) RETURNING id;"
+	row := d.db.QueryRow(query, categoryName)
+	if err := row.Scan(&id); err != nil {
+		return 0, errors.New("Error creating category: " + err.Error())
+	}
+	return id, nil
+}
+
+func (d *DishService) GetCategories() ([]models.Category, error) {
+	var categories []models.Category
+	query := "SELECT * FROM categories;"
+	rows, err := d.db.Query(query)
+	if err != nil {
+		return nil, errors.New("Error querying dishes: " + err.Error())
+	}
+	for rows.Next() {
+		var category models.Category
+		err := rows.Scan(&category.Id, &category.CategoryName)
+		if err != nil {
+			return nil, errors.New("Error getting categories: " + err.Error())
+		}
+		categories = append(categories, category)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, errors.New("Error iterating rows: " + err.Error())
+	}
+	return categories, nil
 }

@@ -94,12 +94,14 @@ func (s *Server) initDishRoutes(group fiber.Router) {
 	group.Get("/by_id/:dish_id", s.h.GetDishById)
 	group.Post("/by_category", s.h.GetDishesByCategory)
 	group.Get("/search/:name", s.h.SearchByName)
+	group.Get("/categories", s.h.GetCategories)
 }
 
 func (s *Server) initAdminRoutes(group fiber.Router) {
 	group.Post("/add", s.h.AddDish)
 	group.Delete("/delete/:id", s.h.DeleteDish)
 	group.Put("/update", s.h.ChangeDish)
+	group.Post("/add_category", s.h.AddCategory)
 }
 
 func (s *Server) initUserOrderRoutes(group fiber.Router) {

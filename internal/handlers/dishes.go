@@ -223,3 +223,28 @@ func validateAdmin(ctx fiber.Ctx) error {
 	}
 	return nil
 }
+
+type AddDishCategoryPayload struct {
+	CategoryName string `json:"category_name" bindings:"required"`
+}
+
+func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
+	var payload AddDishCategoryPayload
+	err := ctx.Bind().Body(&payload)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
+	id, err := h.services.AddCategory(payload.CategoryName)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed create category")
+	}
+	return ctx.Status(fiber.StatusCreated).JSON(id)
+}
+
+func (h *Handlers) GetCategories(ctx fiber.Ctx) error {
+	categories, err := h.services.GetCategories()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed get categories")
+	}
+	return ctx.Status(fiber.StatusOK).JSON(categories)
+}
