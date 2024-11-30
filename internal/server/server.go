@@ -36,6 +36,16 @@ func (s *Server) Run() {
 		ErrorHandler:    handlers.CustomError,
 		StructValidator: &structValidator{validate: validator.New()},
 	})
+
+	// Apply Middlewares
+	s.applyMiddlewares()
+
+	log.Println("Starting server... Let`s Go :)")
+	s.InitRoutes()
+	log.Fatal(s.srv.Listen(s.cfg.HostAddr + ":" + s.cfg.HostPort))
+}
+
+func (s *Server) applyMiddlewares() {
 	s.srv.Use(logger.New())
 	s.srv.Use(recover.New())
 	s.srv.Use(cors.New(cors.Config{
@@ -44,43 +54,58 @@ func (s *Server) Run() {
 		AllowMethods:     []string{"GET,POST,PATCH,DELETE"},
 		AllowCredentials: true,
 	}))
-	log.Println("Starting server... Let`s Go :)")
-	s.InitRoutes()
-	log.Fatal(s.srv.Listen(s.cfg.HostAddr + ":" + s.cfg.HostPort))
 }
 
 func (s *Server) InitRoutes() {
-
 	auth := s.srv.Group("/auth")
-	auth.Post("/login", s.h.LoginUser)
-	auth.Post("/register", s.h.RegisterUser)
+	s.initAuthRoutes(auth)
 
 	api := s.srv.Group("/api")
 	api.Get("/swagger/", adaptor.HTTPHandlerFunc(httpSwagger.WrapHandler))
+	user := api.Group("/user", s.mdl.AuthMiddleware)
+	s.initUserRoutes(user)
 
-	//User handlers
-	user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
-	user.Patch("/change", s.h.ChangeUserCredentials)
-	user.Patch("/change_password", s.h.ChangeUserPassword)
-	user.Delete("/delete", s.h.DeleteUser)
-	user.Post("/logout", s.h.LogoutUser) //TODO: GetUserInfo
-	user.Get("/info", s.h.GetUserInfo)
-	user.Patch("/photo", s.h.UpdatePhoto)
-
-	//Dishes handlers
 	dishes := api.Group("/dishes")
-	dishes.Get("/", s.h.GetDishes)
-	dishes.Get("/by_id/:dish_id", s.h.GetDishById)
-	dishes.Post("/by_category", s.h.GetDishesByCategory)
-	dishes.Get("/search/:name", s.h.SearchByName)
-	secure := api.Group("/secure", s.mdl.AdminAuthMiddleware)
-	secure.Post("/add", s.h.AddDish)
-	secure.Delete("/delete/:id", s.h.DeleteDish)
-	secure.Put("/update", s.h.ChangeDish)
+	s.initDishRoutes(dishes)
 
-	//TODO: WORKER HANDLERS
+	secureAdmin := api.Group("/secure", s.mdl.AdminAuthMiddleware)
+	s.initAdminRoutes(secureAdmin)
 
-	//TODO: ORDER HANDLERS
+	secureUserOrder := api.Group("/user", s.mdl.AuthMiddleware)
+	s.initUserOrderRoutes(secureUserOrder)
+}
+
+func (s *Server) initAuthRoutes(group fiber.Router) {
+	group.Post("/login", s.h.LoginUser)
+	group.Post("/register", s.h.RegisterUser)
+}
+
+func (s *Server) initUserRoutes(group fiber.Router) {
+	group.Patch("/change", s.h.ChangeUserCredentials)
+	group.Patch("/change_password", s.h.ChangeUserPassword)
+	group.Delete("/delete", s.h.DeleteUser)
+	group.Post("/logout", s.h.LogoutUser)
+	group.Get("/info", s.h.GetUserInfo)
+	group.Patch("/photo", s.h.UpdatePhoto)
+}
+
+func (s *Server) initDishRoutes(group fiber.Router) {
+	group.Get("/", s.h.GetDishes)
+	group.Get("/by_id/:dish_id", s.h.GetDishById)
+	group.Post("/by_category", s.h.GetDishesByCategory)
+	group.Get("/search/:name", s.h.SearchByName)
+}
+
+func (s *Server) initAdminRoutes(group fiber.Router) {
+	group.Post("/add", s.h.AddDish)
+	group.Delete("/delete/:id", s.h.DeleteDish)
+	group.Put("/update", s.h.ChangeDish)
+}
+
+func (s *Server) initUserOrderRoutes(group fiber.Router) {
+	group.Post("/create_order", s.h.CreateOrderHandler)
+	group.Delete("/delete_order/:orderId", s.h.DeleteOrder)
+	group.Get("/orders", s.h.GetUserOrders)
 }
 
 func (s *Server) Stop() {
