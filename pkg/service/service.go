@@ -17,6 +17,7 @@ type UserServices interface {
 	DeleteUser(id int) error //14
 	GetUserInfo(id int) (models.UserInfo, error)
 	UpdatePhoto(photo string, userId int) error
+	GetUserRole(userId int) (string, error)
 }
 
 type WorkerServices interface {

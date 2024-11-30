@@ -51,3 +51,7 @@ func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
 func (u *UserService) UpdatePhoto(photo string, userId int) error {
 	return u.repo.UpdatePhoto(photo, userId)
 }
+
+func (u *UserService) GetUserRole(userId int) (string, error) {
+	return u.repo.GetUserRole(userId)
+}
