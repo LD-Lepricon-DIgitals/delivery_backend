@@ -27,9 +27,12 @@ type WorkerServices interface {
 }
 
 type OrderServices interface {
-	GetWorkerOrders(int) ([]models.Order, error)
-	CreateOrder(models.Order) (int, error)
-	GetOrder(int) (models.Order, error)
+	GetWorkerOrders(workerId int) ([]models.Order, error)
+	CreateOrder(order models.CreateOrder) (int, error)
+	GetOrder(orderId int) (models.Order, error)
+	DeleteOrder(orderId int) error
+	GetUsersOrders(int) ([]models.Order, error)
+	GetOrderCustomer(orderId int) (int, error)
 }
 
 type DishServices interface {
@@ -53,6 +56,7 @@ type Repository struct {
 	DishServices
 	ReviewServices
 	WorkerServices
+	OrderServices
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -60,5 +64,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		UserServices:   NewUserService(db),
 		DishServices:   NewDishService(db),
 		WorkerServices: NewWorkerService(db),
+		OrderServices:  NewOrderService(db),
 	}
 }
