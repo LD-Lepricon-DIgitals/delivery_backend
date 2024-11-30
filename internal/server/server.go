@@ -57,6 +57,8 @@ func (s *Server) InitRoutes() {
 
 	api := s.srv.Group("/api")
 	api.Get("/swagger/", adaptor.HTTPHandlerFunc(httpSwagger.WrapHandler))
+
+	//User handlers
 	user := api.Group("/user", s.mdl.AuthMiddleware) // TODO: add middleware
 	user.Patch("/change", s.h.ChangeUserCredentials)
 	user.Patch("/change_password", s.h.ChangeUserPassword)
@@ -64,15 +66,21 @@ func (s *Server) InitRoutes() {
 	user.Post("/logout", s.h.LogoutUser) //TODO: GetUserInfo
 	user.Get("/info", s.h.GetUserInfo)
 	user.Patch("/photo", s.h.UpdatePhoto)
+
+	//Dishes handlers
 	dishes := api.Group("/dishes")
 	dishes.Get("/", s.h.GetDishes)
 	dishes.Get("/by_id/:dish_id", s.h.GetDishById)
 	dishes.Post("/by_category", s.h.GetDishesByCategory)
 	dishes.Get("/search/:name", s.h.SearchByName)
-	secureDishes := dishes.Group("/admin") // TODO : add middleware
-	secureDishes.Post("/add", s.h.AddDish)
-	secureDishes.Delete("/delete/:id", s.h.DeleteDish)
-	secureDishes.Put("/update", s.h.ChangeDish)
+	secure := api.Group("/secure", s.mdl.AdminAuthMiddleware)
+	secure.Post("/add", s.h.AddDish)
+	secure.Delete("/delete/:id", s.h.DeleteDish)
+	secure.Put("/update", s.h.ChangeDish)
+
+	//TODO: WORKER HANDLERS
+
+	//TODO: ORDER HANDLERS
 }
 
 func (s *Server) Stop() {
