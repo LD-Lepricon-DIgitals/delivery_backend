@@ -45,12 +45,21 @@ type AuthServices interface {
 	ParseToken(token string) (int, string, error)
 }
 
+type OrderServices interface {
+	GetWorkerOrders(workerId int) ([]models.Order, error)
+	CreateOrder(order models.CreateOrder) (int, error)
+	GetOrder(orderId int) (models.Order, error)
+	DeleteOrder(orderId int) error
+	GetUsersOrders(int) ([]models.Order, error)
+}
+
 type Service struct {
 	UserServices
 	AdminServices
 	WorkerServices
 	DishServices
 	ReviewServices
+	OrderServices
 	AuthServices
 }
 
@@ -60,5 +69,6 @@ func NewService(repo *db.Repository, cfg *config.Config) *Service {
 		UserServices:   NewUserService(repo),
 		DishServices:   NewDishService(repo),
 		WorkerServices: NewWorkerService(repo),
+		OrderServices:  NewOrderService(repo),
 	}
 }
