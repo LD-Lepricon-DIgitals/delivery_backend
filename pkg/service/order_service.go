@@ -29,6 +29,10 @@ func (o OrderService) GetUsersOrders(i int) ([]models.Order, error) {
 	return o.repo.GetUsersOrders(i)
 }
 
+func (o OrderService) GetOrderCustomer(orderId int) (int, error) {
+	return o.repo.GetOrderCustomer(orderId)
+}
+
 func NewOrderService(repo *db.Repository) *OrderService {
 	return &OrderService{repo: repo}
 }

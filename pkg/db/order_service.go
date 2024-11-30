@@ -175,3 +175,23 @@ func (o *OrderService) GetWorkerOrders(workerId int) ([]models.Order, error) {
 	}
 	return orders, nil
 }
+
+func (o *OrderService) GetOrderCustomer(orderId int) (int, error) {
+	customerId := 0
+	tx, err := o.db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	err = tx.QueryRow("SELECT customer_id FROM orders WHERE order_id = $1", orderId).Scan(&customerId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, fmt.Errorf("order not found with id %d", orderId)
+		}
+		return 0, fmt.Errorf("failed to query order customer table: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+	return customerId, nil
+}

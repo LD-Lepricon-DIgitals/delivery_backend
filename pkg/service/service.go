@@ -51,6 +51,7 @@ type OrderServices interface {
 	GetOrder(orderId int) (models.Order, error)
 	DeleteOrder(orderId int) error
 	GetUsersOrders(int) ([]models.Order, error)
+	GetOrderCustomer(orderId int) (int, error)
 }
 
 type Service struct {
