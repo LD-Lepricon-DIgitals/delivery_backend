@@ -117,7 +117,6 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 		SameSite:    "None",
 		Secure:      true,
 	}
-	cookie.Partitioned = true
 	c.Cookie(&cookie)
 	return c.SendStatus(fiber.StatusOK)
 }

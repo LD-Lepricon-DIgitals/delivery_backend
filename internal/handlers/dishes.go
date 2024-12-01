@@ -214,9 +214,9 @@ func (h *Handlers) SearchByName(ctx fiber.Ctx) error {
 }
 
 func validateAdmin(ctx fiber.Ctx) error {
-	userRole, ok := ctx.Locals("role").(string)
+	userRole, ok := ctx.Locals("userRole").(string)
 	if !ok {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: can not parse")
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: can not parse role from locals")
 	}
 	if userRole != "admin" {
 		return fiber.NewError(fiber.StatusForbidden, fmt.Sprintf("Invalid token: invalid role, expected worker got %s", userRole))
