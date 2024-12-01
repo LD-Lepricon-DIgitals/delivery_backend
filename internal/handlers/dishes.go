@@ -228,6 +228,18 @@ type AddDishCategoryPayload struct {
 	CategoryName string `json:"category_name" bindings:"required"`
 }
 
+// AddCategory godoc
+// @Summary Add a new dish category
+// @Description Add a new dish category by providing its name
+// @Tags Categories
+// @Accept json
+// @Produce json
+// @Param payload body AddDishCategoryPayload true "Category data"
+// @Success 201 {object} int "ID of the created category"
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 403 {object} models.APIError "Access forbidden"
+// @Failure 500 {object} models.APIError "Failed to create category"
+// @Router /api/categories [post]
 func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
 	var payload AddDishCategoryPayload
 	err := ctx.Bind().Body(&payload)
@@ -241,6 +253,15 @@ func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(id)
 }
 
+// GetCategories godoc
+// @Summary Get all dish categories
+// @Description Retrieve a list of all dish categories
+// @Tags Categories
+// @Produce json
+// @Success 200 {array} []string "List of categories"
+// @Failure 403 {object} models.APIError "Access forbidden"
+// @Failure 500 {object} models.APIError "Failed to retrieve categories"
+// @Router /api/categories [get]
 func (h *Handlers) GetCategories(ctx fiber.Ctx) error {
 	categories, err := h.services.GetCategories()
 	if err != nil {
