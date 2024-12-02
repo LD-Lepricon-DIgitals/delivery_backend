@@ -16,6 +16,7 @@ type UserServices interface {
 	IsCorrectPasswordId(id int, passwordToCheck string) (bool, error)
 	GetUserInfo(id int) (models.UserInfo, error)
 	UpdatePhoto(photoString string, userId int) error
+	GetUserRole(userId int) (string, error)
 }
 
 type AdminServices interface {
@@ -43,7 +44,8 @@ type DishServices interface {
 	GetDishesByCategory(category string) ([]models.Dish, error)
 	GetDishById(id int) (models.Dish, error)
 	SearchByName(name string) ([]models.Dish, error)
-
+	AddCategory(categoryName string) (int, error)
+	GetCategories() ([]models.Category, error)
 	//TODO: Dish Categories return
 }
 

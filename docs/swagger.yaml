@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  handlers.AddDishCategoryPayload:
+    properties:
+      category_name:
+        type: string
+    type: object
   handlers.AddDishPayload:
     properties:
       dish_category:
@@ -187,6 +192,64 @@ info:
   title: Delivery Backend API
   version: "1.0"
 paths:
+  /api/categories:
+    get:
+      description: Retrieve a list of all dish categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            items:
+              items:
+                type: string
+              type: array
+            type: array
+        "403":
+          description: Access forbidden
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to retrieve categories
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Get all dish categories
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Add a new dish category by providing its name
+      parameters:
+      - description: Category data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AddDishCategoryPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ID of the created category
+          schema:
+            type: integer
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "403":
+          description: Access forbidden
+          schema:
+            $ref: '#/definitions/models.APIError'
+        "500":
+          description: Failed to create category
+          schema:
+            $ref: '#/definitions/models.APIError'
+      summary: Add a new dish category
+      tags:
+      - Categories
   /api/dishes:
     get:
       description: Retrieve a list of all available dishes

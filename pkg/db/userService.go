@@ -180,19 +180,19 @@ func (u *UserService) GetUserInfo(id int) (models.UserInfo, error) {
 	var user models.UserInfo
 	tx, err := u.db.Begin()
 	if err != nil {
-		return user, fmt.Errorf("failed to begin transaction: %w", err)
+		return models.UserInfo{}, fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	err = tx.QueryRow("SELECT user_login, user_role FROM users WHERE id = $1", id).Scan(&user.UserLogin, &user.Role)
 	if err != nil {
-		return user, fmt.Errorf("failed to get user info: %w", err)
+		return models.UserInfo{}, fmt.Errorf("failed to get user info: %w", err)
 	}
 	err = tx.QueryRow("SELECT user_phone, user_name, user_surname, user_address, user_photo FROM users_info WHERE user_id = $1", id).Scan(&user.Phone, &user.Name, &user.Surname, &user.Address, &user.Photo)
 	if err != nil {
-		return user, fmt.Errorf("failed to get user info: %w", err)
+		return models.UserInfo{}, fmt.Errorf("failed to get user info: %w", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return user, fmt.Errorf("failed to get user info: %w", err)
+		return models.UserInfo{}, fmt.Errorf("failed to get user info: %w", err)
 	}
 	return user, nil
 }
@@ -216,4 +216,27 @@ func (u *UserService) UpdatePhoto(photoString string, userId int) error {
 		return err
 	}
 	return nil
+}
+
+func (u *UserService) GetUserRole(userId int) (string, error) {
+
+	role := ""
+	tx, err := u.db.Begin()
+	if err != nil {
+		return "", fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	err = tx.QueryRow("SELECT user_role FROM users WHERE id=$1", userId).Scan(&role)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			tx.Rollback()
+			return "", fmt.Errorf("failed to found user: %w", err)
+		}
+		tx.Rollback()
+		return "", fmt.Errorf("failed to get user role: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return "", fmt.Errorf("failed to get user role^ %w", err)
+	}
+	return role, nil
 }
