@@ -51,7 +51,6 @@ func (h *Handlers) GetOrderHandler(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(order)
 }
 
-// GetCategories godoc
 func (h *Handlers) DeleteOrder(ctx fiber.Ctx) error {
 	orderId := ctx.Params("orderId")
 	id, err := strconv.Atoi(orderId)
