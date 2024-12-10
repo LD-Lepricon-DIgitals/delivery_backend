@@ -214,12 +214,58 @@ func (h *Handlers) SearchByName(ctx fiber.Ctx) error {
 }
 
 func validateAdmin(ctx fiber.Ctx) error {
-	userRole, ok := ctx.Locals("role").(string)
+	userRole, ok := ctx.Locals("userRole").(string)
 	if !ok {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: can not parse")
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: can not parse role from locals")
 	}
 	if userRole != "admin" {
 		return fiber.NewError(fiber.StatusForbidden, fmt.Sprintf("Invalid token: invalid role, expected worker got %s", userRole))
 	}
 	return nil
+}
+
+type AddDishCategoryPayload struct {
+	CategoryName string `json:"category_name" bindings:"required"`
+}
+
+// AddCategory godoc
+// @Summary Add a new dish category
+// @Description Add a new dish category by providing its name
+// @Tags Categories
+// @Accept json
+// @Produce json
+// @Param payload body AddDishCategoryPayload true "Category data"
+// @Success 201 {object} int "ID of the created category"
+// @Failure 400 {object} models.APIError "Invalid request body"
+// @Failure 403 {object} models.APIError "Access forbidden"
+// @Failure 500 {object} models.APIError "Failed to create category"
+// @Router /api/categories [post]
+func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
+	var payload AddDishCategoryPayload
+	err := ctx.Bind().Body(&payload)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
+	id, err := h.services.AddCategory(payload.CategoryName)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed create category")
+	}
+	return ctx.Status(fiber.StatusCreated).JSON(id)
+}
+
+// GetCategories godoc
+// @Summary Get all dish categories
+// @Description Retrieve a list of all dish categories
+// @Tags Categories
+// @Produce json
+// @Success 200 {array} []string "List of categories"
+// @Failure 403 {object} models.APIError "Access forbidden"
+// @Failure 500 {object} models.APIError "Failed to retrieve categories"
+// @Router /api/categories [get]
+func (h *Handlers) GetCategories(ctx fiber.Ctx) error {
+	categories, err := h.services.GetCategories()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed get categories")
+	}
+	return ctx.Status(fiber.StatusOK).JSON(categories)
 }

@@ -22,7 +22,7 @@ func (m *Middleware) AuthMiddleware(c fiber.Ctx) error {
 	userId, userRole, err := m.srv.AuthServices.ParseToken(token)
 
 	if err != nil {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: cant parse token")
+		return fiber.NewError(fiber.StatusUnauthorized, fmt.Sprintf("Invalid token: cant parse token: %w", err))
 	}
 	if userId <= 0 {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: invalid user id")
@@ -43,7 +43,7 @@ func (m *Middleware) AdminAuthMiddleware(c fiber.Ctx) error {
 	}
 	userId, userRole, err := m.srv.AuthServices.ParseToken(token)
 	if err != nil {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: cant parse token")
+		return fiber.NewError(fiber.StatusUnauthorized, fmt.Sprintf("Invalid token: cant parse token: %w", err))
 	}
 	if userId <= 0 {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: invalid user id")
@@ -64,7 +64,7 @@ func (m *Middleware) WorkerAuthMiddleware(c fiber.Ctx) error {
 	}
 	userId, userRole, err := m.srv.AuthServices.ParseToken(token)
 	if err != nil {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: cant parse token")
+		return fiber.NewError(fiber.StatusUnauthorized, fmt.Sprintf("Invalid token: cant parse token: %w", err))
 	}
 	if userId <= 0 {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid token: invalid user id")

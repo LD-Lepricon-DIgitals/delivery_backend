@@ -17,6 +17,7 @@ type UserServices interface {
 	DeleteUser(id int) error //14
 	GetUserInfo(id int) (models.UserInfo, error)
 	UpdatePhoto(photo string, userId int) error
+	GetUserRole(userId int) (string, error)
 }
 
 type WorkerServices interface {
@@ -35,6 +36,8 @@ type DishServices interface {
 	GetDishesByCategory(category string) ([]models.Dish, error)
 	GetDishById(id int) (models.Dish, error)
 	SearchByName(name string) ([]models.Dish, error)
+	AddCategory(categoryName string) (int, error)
+	GetCategories() ([]models.Category, error)
 }
 
 type ReviewServices interface {

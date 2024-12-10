@@ -36,7 +36,7 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	token, err := h.services.CreateToken(userId, "user")
+	token, err := h.services.CreateToken(userId, params.Role)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -103,7 +103,13 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	token, err = h.services.CreateToken(userId, "user")
+
+	userRole, err := h.services.GetUserRole(userId)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	token, err = h.services.CreateToken(userId, userRole)
 	cookie := fiber.Cookie{
 		Name:        "token",
 		Value:       token,
@@ -111,7 +117,6 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 		SameSite:    "None",
 		Secure:      true,
 	}
-	cookie.Partitioned = true
 	c.Cookie(&cookie)
 	return c.SendStatus(fiber.StatusOK)
 }
