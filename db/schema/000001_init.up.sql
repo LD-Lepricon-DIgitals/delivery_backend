@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS orders
     customer_id int   NOT NULL,
     worker_id   int,
     order_price float NOT NULL,
-    order_status string NOT NULL,
+    order_status text NOT NULL,
     CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_worker_id FOREIGN KEY (worker_id) REFERENCES users (id) ON DELETE CASCADE
 );
