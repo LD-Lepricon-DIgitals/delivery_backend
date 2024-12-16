@@ -11,7 +11,7 @@ type Order struct {
 }
 
 type CreateOrder struct {
-	CustomerId int         `json:"customer_id" validation:"required"`
+	CustomerId int         `json:"customer_id"`
 	Dishes     []OrderDish `json:"dishes" validation:"required"`
 	Price      float64     `json:"order_price" validation:"required"`
 }
@@ -23,6 +23,7 @@ type OrderDetails struct {
 	UserPhotoUrl string      `json:"user_photo_url" validation:"required"`
 	OrderPrice   string      `json:"order_price" validation:"required"`
 	OrderStatus  string      `json:"order_status" validation:"required"`
+	Address      string      `json:"address" validation:"required"`
 	Dishes       []OrderDish `json:"dishes" validation:"required"`
 }
 
@@ -30,5 +31,6 @@ type OrderInfo struct {
 	OrderId     int    `json:"order_id" validation:"required"`
 	UserLogin   string `json:"user_login" validation:"required"`
 	UserPhoto   string `json:"user_photo" validation:"required"`
+	Address     string `json:"address" validation:"required"`
 	OrderStatus string `json:"order_status" validation:"required"`
 }

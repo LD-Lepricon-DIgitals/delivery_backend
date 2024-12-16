@@ -189,12 +189,13 @@ func (o OrderService) GetOrders(workerId int) ([]models.OrderInfo, error) {
 		}
 
 		// Retrieve user info for the customer
-		_, _, userPhoto, userLogin, err := o.getUserInfo(userId)
+		userInfo, err := o.getUserInfo(userId)
 		if err != nil {
 			return nil, errors.New("error getting user info: " + err.Error())
 		}
-		orderInfo.UserLogin = userLogin
-		orderInfo.UserPhoto = userPhoto
+		orderInfo.UserLogin = userInfo.UserLogin
+		orderInfo.UserPhoto = userInfo.UserLogin
+		orderInfo.Address = userInfo.Address
 
 		// Append the order info to the list
 		ordersInfo = append(ordersInfo, orderInfo)
@@ -209,27 +210,27 @@ func (o OrderService) GetOrders(workerId int) ([]models.OrderInfo, error) {
 
 }
 
-func (o OrderService) getUserInfo(userId int) (string, string, string, string, error) {
-	var userName, userSurname, userLogin, userPhoto string
+func (o OrderService) getUserInfo(userId int) (models.UserOrderInfo, error) {
+	var userInfo models.UserOrderInfo
 	tx, err := o.db.Begin()
 	if err != nil {
-		return "", "", "", "", err
+		return models.UserOrderInfo{}, err
 	}
 
-	err = tx.QueryRow("SELECT user_login FROM users WHERE id = $1", userId).Scan(&userLogin)
+	err = tx.QueryRow("SELECT user_login FROM users WHERE id = $1", userId).Scan(&userInfo.UserLogin)
 	if err != nil {
 		tx.Rollback()
-		return "", "", "", "", err
+		return models.UserOrderInfo{}, err
 	}
 
-	err = tx.QueryRow("SELECT user_name, user_surname,user_photo FROM users_info WHERE user_id = $1", userId).Scan(&userName, &userSurname, &userPhoto)
+	err = tx.QueryRow("SELECT user_name, user_surname,user_photo,user_address FROM users_info WHERE user_id = $1", userId).Scan(&userInfo.Name, &userInfo.Surname, &userInfo.Photo, &userInfo.Address)
 	if err != nil {
 		tx.Rollback()
-		return "", "", "", "", err
+		return models.UserOrderInfo{}, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		return "", "", "", "", err
+		return models.UserOrderInfo{}, err
 	}
-	return userName, userSurname, userPhoto, userLogin, nil
+	return userInfo, nil
 }

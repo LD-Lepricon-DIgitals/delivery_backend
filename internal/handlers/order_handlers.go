@@ -19,10 +19,12 @@ func (h *Handlers) CreateOrder(ctx fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	if userId != payload.CustomerId {
+	if payload.CustomerId != 0 && userId != payload.CustomerId {
 		return fiber.NewError(fiber.StatusForbidden, "userId in token isn`t equal to customerId in order")
 	}
-
+	if payload.CustomerId == 0 {
+		payload.CustomerId = userId
+	}
 	err = h.services.CreateOrder(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
