@@ -12,7 +12,7 @@ import (
 // @Description Retrieve a list of all available dishes
 // @Tags Dishes
 // @Produce json
-// @Success 200 {array} []models.Dish "List of dishes"
+// @Success 200 {array} models.Dish "List of dishes"
 // @Failure 404 {object} models.APIError "No dishes found"
 // @Failure 500 {object} models.APIError "Failed to retrieve dishes"
 // @Router /api/dishes [get]
@@ -39,7 +39,7 @@ type AddDishPayload struct {
 // AddDish godoc
 // @Summary Add a new dish
 // @Description Create a new dish with the provided details
-// @Tags Dishes/Secure
+// @Tags Dishes (Admin)
 // @Accept json
 // @Produce json
 // @Param dish body AddDishPayload true "Dish details"
@@ -70,9 +70,9 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 // DeleteDish godoc
 // @Summary Delete a dish by ID
 // @Description Remove a dish from the system by its ID
-// @Tags Dishes/Secure
+// @Tags Dishes (Admin)
 // @Param id path int true "Dish ID"
-// @Success 200 "Dish deleted successfully"
+// @Success 200 {string} string "Dish deleted successfully"
 // @Failure 400 {object} models.APIError "Invalid dish ID"
 // @Failure 403 {object} models.APIError "Access forbidden"
 // @Failure 500 {object} models.APIError "Failed to delete dish"
@@ -104,11 +104,11 @@ type ChangeDishPayload struct {
 // ChangeDish godoc
 // @Summary Update dish details
 // @Description Update the details of an existing dish
-// @Tags Dishes/Secure
+// @Tags Dishes (Admin)
 // @Accept json
 // @Produce json
 // @Param dish body ChangeDishPayload true "Dish details"
-// @Success 200 "Dish updated successfully"
+// @Success 200 {string} string "Dish updated successfully"
 // @Failure 400 {object} models.APIError "Invalid request body"
 // @Failure 403 {object} models.APIError "Access forbidden"
 // @Failure 500 {object} models.APIError "Failed to update dish"
@@ -142,7 +142,7 @@ type GetDishesByCategoryPayload struct {
 // @Accept json
 // @Produce json
 // @Param category body GetDishesByCategoryPayload true "Category details"
-// @Success 200 {array} []models.Dish "List of dishes"
+// @Success 200 {array} models.Dish "List of dishes"
 // @Failure 400 {object} models.APIError "Invalid request body"
 // @Failure 404 {object} models.APIError "No dishes found"
 // @Failure 500 {object} models.APIError "Failed to retrieve dishes"
@@ -193,11 +193,11 @@ func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
 // @Description Search for dishes by their name
 // @Tags Dishes
 // @Param name query string true "Dish name"
-// @Success 200 {array} []models.Dish "List of matching dishes"
+// @Success 200 {array} models.Dish "List of matching dishes"
 // @Failure 400 {object} models.APIError "Query parameter 'name' is required"
 // @Failure 404 {object} models.APIError "No dishes found"
 // @Failure 500 {object} models.APIError "Failed to search dishes"
-// @Router /api/dishes/search/{name} [get]
+// @Router /api/dishes/search [get]
 func (h *Handlers) SearchByName(ctx fiber.Ctx) error {
 	name := ctx.Query("name")
 	if name == "" {
@@ -231,11 +231,11 @@ type AddDishCategoryPayload struct {
 // AddCategory godoc
 // @Summary Add a new dish category
 // @Description Add a new dish category by providing its name
-// @Tags Categories
+// @Tags Categories (Admin)
 // @Accept json
 // @Produce json
 // @Param payload body AddDishCategoryPayload true "Category data"
-// @Success 201 {object} int "ID of the created category"
+// @Success 201 {object} map[string]int "ID of the created category"
 // @Failure 400 {object} models.APIError "Invalid request body"
 // @Failure 403 {object} models.APIError "Access forbidden"
 // @Failure 500 {object} models.APIError "Failed to create category"
@@ -258,8 +258,7 @@ func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
 // @Description Retrieve a list of all dish categories
 // @Tags Categories
 // @Produce json
-// @Success 200 {array} []string "List of categories"
-// @Failure 403 {object} models.APIError "Access forbidden"
+// @Success 200 {array} string "List of categories"
 // @Failure 500 {object} models.APIError "Failed to retrieve categories"
 // @Router /api/categories [get]
 func (h *Handlers) GetCategories(ctx fiber.Ctx) error {

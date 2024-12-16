@@ -68,7 +68,7 @@ func (s *Server) InitRoutes() {
 	dishes := api.Group("/dishes")
 	s.initDishRoutes(dishes)
 
-	secureAdmin := api.Group("/secure", s.mdl.AdminAuthMiddleware)
+	secureAdmin := dishes.Group("/admin", s.mdl.AdminAuthMiddleware)
 	s.initAdminRoutes(secureAdmin)
 
 	orders := api.Group("/orders", s.mdl.AuthMiddleware)

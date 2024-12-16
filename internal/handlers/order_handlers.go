@@ -7,6 +7,19 @@ import (
 	"strconv"
 )
 
+// CreateOrder creates a new order.
+// @Summary Create a new order
+// @Description Creates an order for the authenticated user or a specified customer.
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param order body models.CreateOrder true "Order payload"
+// @Success 200 {string} string "Order created successfully"
+// @Failure 400 {object} models.APIError "Bad Request - Invalid payload"
+// @Failure 401 {object} models.APIError "Unauthorized - Invalid or missing token"
+// @Failure 403 {object} models.APIError "Forbidden - User ID in token does not match customer ID in the order"
+// @Failure 500 {object} models.APIError "Internal Server Error - Order creation failed"
+// @Router /api/orders [post]
 func (h *Handlers) CreateOrder(ctx fiber.Ctx) error {
 	userId, _, err := verifyUserToken(ctx)
 	if err != nil {
@@ -33,6 +46,17 @@ func (h *Handlers) CreateOrder(ctx fiber.Ctx) error {
 	return ctx.SendStatus(fiber.StatusOK)
 }
 
+// GetOrders retrieves all orders for the authenticated user.
+// @Summary Retrieve all orders
+// @Description Fetches a list of all orders associated with the authenticated user with the "worker" role.
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.OrderInfo "List of orders"
+// @Failure 401 {object} models.APIError "Unauthorized - Invalid or missing token"
+// @Failure 403 {object} models.APIError "Forbidden - User does not have the required role"
+// @Failure 500 {object} models.APIError "Internal Server Error - Failed to fetch orders"
+// @Router /api/orders [get]
 func (h *Handlers) GetOrders(ctx fiber.Ctx) error {
 	userId, role, err := verifyUserToken(ctx)
 
@@ -53,6 +77,19 @@ func (h *Handlers) GetOrders(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(ordersInfo)
 }
 
+// GetOrderDetails retrieves the details of a specific order.
+// @Summary Retrieve order details
+// @Description Fetches detailed information about a specific order by its ID. Accessible only to users with the "worker" role.
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param order_id path int true "Order ID"
+// @Success 200 {object} models.OrderDetails "Detailed information about the order"
+// @Failure 400 {object} models.APIError "Bad Request - Invalid order ID"
+// @Failure 401 {object} models.APIError "Unauthorized - Invalid or missing token"
+// @Failure 403 {object} models.APIError "Forbidden - User does not have the required role"
+// @Failure 500 {object} models.APIError "Internal Server Error - Failed to fetch order details"
+// @Router /api/orders/{order_id} [get]
 func (h *Handlers) GetOrderDetails(ctx fiber.Ctx) error {
 	param := ctx.Params("order_id")
 	orderId, err := strconv.Atoi(param)
@@ -77,6 +114,19 @@ func (h *Handlers) GetOrderDetails(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(orderDetails)
 }
 
+// ConfirmOrder confirms an order by its ID.
+// @Summary Confirm an order
+// @Description Confirms an order, marking it as accepted by a worker. Only accessible to users with the "worker" role.
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param order_id path int true "Order ID"
+// @Success 200 {string} string "Order confirmed successfully"
+// @Failure 400 {object} models.APIError "Bad Request - Invalid order ID"
+// @Failure 401 {object} models.APIError "Unauthorized - Invalid or missing token"
+// @Failure 403 {object} models.APIError "Forbidden - User does not have the required role"
+// @Failure 500 {object} models.APIError "Internal Server Error - Failed to confirm order"
+// @Router /api/orders/confirm/{order_id} [post]
 func (h *Handlers) ConfirmOrder(ctx fiber.Ctx) error {
 	param := ctx.Params("order_id")
 	orderId, err := strconv.Atoi(param)
@@ -102,6 +152,19 @@ func (h *Handlers) ConfirmOrder(ctx fiber.Ctx) error {
 	return ctx.SendStatus(fiber.StatusOK)
 }
 
+// FinishOrder finishes an order by its ID.
+// @Summary Finish an order
+// @Description Marks an order as completed by the assigned worker. Only accessible to users with the "worker" role.
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param order_id path int true "Order ID"
+// @Success 200 {string} string "Order finished successfully"
+// @Failure 400 {object} models.APIError "Bad Request - Invalid order ID"
+// @Failure 401 {object} models.APIError "Unauthorized - Invalid or missing token"
+// @Failure 403 {object} models.APIError "Forbidden - User does not have the required role"
+// @Failure 500 {object} models.APIError "Internal Server Error - Failed to finish order"
+// @Router /api/orders/finish/{order_id} [post]
 func (h *Handlers) FinishOrder(ctx fiber.Ctx) error {
 	param := ctx.Params("order_id")
 	orderId, err := strconv.Atoi(param)
