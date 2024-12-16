@@ -16,7 +16,7 @@ if [[ -z "$CONTAINER_ID" ]]; then
 fi
 
 # Check required environment variables
-if [[ -z "$DB_USER" || -z "$DB_PASSWORD" || -z "$DB_NAME" ]]; then
+if [[ -z "$DB_USERNAME" || -z "$DB_PASSWORD" || -z "$DB_NAME" ]]; then
   echo "Error: Missing one or more required variables in $ENV_FILE:"
   echo "  - DB_USER: Database username"
   echo "  - DB_PASSWORD: Database password"
@@ -45,7 +45,7 @@ docker cp "$SCHEMA_FILE" "$CONTAINER_ID:/schema.sql"
 
 # Apply the schema to the database
 echo "Applying schema to the database..."
-docker exec -i "$CONTAINER_ID" psql -U "$DB_USER" -d "$DB_NAME" -f /schema.sql
+docker exec -i "$CONTAINER_ID" psql -U "$DB_USERNAME" -d "$DB_NAME" -f /schema.sql
 
 # Cleanup the schema file from the container
 echo "Cleaning up schema file from container..."
