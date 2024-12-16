@@ -39,3 +39,12 @@ type ChangeUserCredsPayload struct {
 	Surname   string `json:"user_surname" validate:"required"`
 	Address   string `json:"user_address" validate:"required"`
 }
+
+type UserOrderInfo struct {
+	UserLogin string `json:"user_login" validate:"required"`
+	Phone     string `json:"user_phone" validate:"required"`
+	Name      string `json:"user_name" validate:"required"`
+	Surname   string `json:"user_surname" validate:"required"`
+	Address   string `json:"user_address" validate:"required"`
+	Photo     string `json:"user_photo" validate:"required"`
+}

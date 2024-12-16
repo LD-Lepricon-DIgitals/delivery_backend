@@ -34,17 +34,8 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
+                                "type": "string"
                             }
-                        }
-                    },
-                    "403": {
-                        "description": "Access forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/models.APIError"
                         }
                     },
                     "500": {
@@ -64,7 +55,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Categories"
+                    "Categories (Admin)"
                 ],
                 "summary": "Add a new dish category",
                 "parameters": [
@@ -82,7 +73,10 @@ const docTemplate = `{
                     "201": {
                         "description": "ID of the created category",
                         "schema": {
-                            "type": "integer"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
                         }
                     },
                     "400": {
@@ -122,10 +116,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/models.Dish"
-                                }
+                                "$ref": "#/definitions/models.Dish"
                             }
                         }
                     },
@@ -154,7 +145,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Dishes/Secure"
+                    "Dishes (Admin)"
                 ],
                 "summary": "Add a new dish",
                 "parameters": [
@@ -203,7 +194,7 @@ const docTemplate = `{
             "delete": {
                 "description": "Remove a dish from the system by its ID",
                 "tags": [
-                    "Dishes/Secure"
+                    "Dishes (Admin)"
                 ],
                 "summary": "Delete a dish by ID",
                 "parameters": [
@@ -217,7 +208,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Dish deleted successfully"
+                        "description": "Dish deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "400": {
                         "description": "Invalid dish ID",
@@ -250,7 +244,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Dishes/Secure"
+                    "Dishes (Admin)"
                 ],
                 "summary": "Update dish details",
                 "parameters": [
@@ -266,7 +260,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Dish updated successfully"
+                        "description": "Dish updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "400": {
                         "description": "Invalid request body",
@@ -319,10 +316,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/models.Dish"
-                                }
+                                "$ref": "#/definitions/models.Dish"
                             }
                         }
                     },
@@ -391,7 +385,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/dishes/search/{name}": {
+        "/api/dishes/search": {
             "get": {
                 "description": "Search for dishes by their name",
                 "tags": [
@@ -413,10 +407,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/models.Dish"
-                                }
+                                "$ref": "#/definitions/models.Dish"
                             }
                         }
                     },
@@ -434,6 +425,274 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to search dishes",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders": {
+            "get": {
+                "description": "Fetches a list of all orders associated with the authenticated user with the \"worker\" role.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Retrieve all orders",
+                "responses": {
+                    "200": {
+                        "description": "List of orders",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OrderInfo"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not have the required role",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Failed to fetch orders",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates an order for the authenticated user or a specified customer.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Create a new order",
+                "parameters": [
+                    {
+                        "description": "Order payload",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order created successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User ID in token does not match customer ID in the order",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Order creation failed",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/confirm/{order_id}": {
+            "post": {
+                "description": "Confirms an order, marking it as accepted by a worker. Only accessible to users with the \"worker\" role.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Confirm an order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order confirmed successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid order ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not have the required role",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Failed to confirm order",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/finish/{order_id}": {
+            "post": {
+                "description": "Marks an order as completed by the assigned worker. Only accessible to users with the \"worker\" role.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Finish an order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order finished successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid order ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not have the required role",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Failed to finish order",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/{order_id}": {
+            "get": {
+                "description": "Fetches detailed information about a specific order by its ID. Accessible only to users with the \"worker\" role.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Retrieve order details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed information about the order",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrderDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid order ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not have the required role",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Failed to fetch order details",
                         "schema": {
                             "$ref": "#/definitions/models.APIError"
                         }
@@ -888,6 +1147,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateOrder": {
+            "type": "object",
+            "properties": {
+                "customer_id": {
+                    "type": "integer"
+                },
+                "dishes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrderDish"
+                    }
+                },
+                "order_price": {
+                    "type": "number"
+                }
+            }
+        },
         "models.Dish": {
             "type": "object",
             "required": [
@@ -918,6 +1194,72 @@ const docTemplate = `{
                 },
                 "dish_weight": {
                     "type": "number"
+                }
+            }
+        },
+        "models.OrderDetails": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "dishes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrderDish"
+                    }
+                },
+                "order_price": {
+                    "type": "string"
+                },
+                "order_status": {
+                    "type": "string"
+                },
+                "user_login": {
+                    "type": "string"
+                },
+                "user_photo_url": {
+                    "type": "string"
+                },
+                "user_surname": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OrderDish": {
+            "type": "object",
+            "properties": {
+                "dish_id": {
+                    "type": "integer"
+                },
+                "dish_name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.OrderInfo": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "integer"
+                },
+                "order_status": {
+                    "type": "string"
+                },
+                "user_login": {
+                    "type": "string"
+                },
+                "user_photo": {
+                    "type": "string"
                 }
             }
         },

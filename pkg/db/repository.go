@@ -28,12 +28,11 @@ type WorkerServices interface {
 }
 
 type OrderServices interface {
-	GetWorkerOrders(workerId int) ([]models.Order, error)
-	CreateOrder(order models.CreateOrder) (int, error)
-	GetOrder(orderId int) (models.Order, error)
-	DeleteOrder(orderId int) error
-	GetUsersOrders(int) ([]models.Order, error)
-	GetOrderCustomer(orderId int) (int, error)
+	CreateOrder(order models.CreateOrder) error
+	GetOrders(workerId int) ([]models.OrderInfo, error) //includes private methods getFreeOrders and getWorkerOrders
+	FinishOrder(orderId, workerId int) error
+	StartOrder(orderId int, workerId int) error //includes isFree check
+	GetOrderDetails(orderId int) (models.OrderDetails, error)
 }
 
 type DishServices interface {
