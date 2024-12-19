@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/gofiber/fiber/v3"
 	"log"
 	"strconv"
@@ -27,15 +28,6 @@ func (h *Handlers) GetDishes(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
 
-type AddDishPayload struct {
-	Name        string  `json:"dish_name" binding:"required"`
-	Price       float64 `json:"dish_price" binding:"required"`
-	Weight      float64 `json:"dish_weight" binding:"required"`
-	Description string  `json:"dish_description" binding:"required"`
-	Photo       string  `json:"dish_photo" binding:"required"`
-	Category    int     `json:"dish_category" binding:"required"`
-}
-
 // AddDish godoc
 // @Summary Add a new dish
 // @Description Create a new dish with the provided details
@@ -53,12 +45,12 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	var payload AddDishPayload
+	var payload models.Dish
 	err = ctx.Bind().Body(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
-	id, err := h.services.AddDish(payload.Name, payload.Price, payload.Weight, payload.Description, payload.Photo, payload.Category)
+	id, err := h.services.AddDish(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to add dish")
 	}
