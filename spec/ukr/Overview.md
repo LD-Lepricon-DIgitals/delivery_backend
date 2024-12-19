@@ -19,7 +19,7 @@ Front-end
 * React.js: Для побудови швидкого, зручного і адаптивного інтерфейсу.
 * Axios: Для надсилання запитів на сервер.
 
-Back-end:
+[Back-end](Concepts.md):
 
 * Golang 1.23
 * Fiber Framework. Побудова RestAPI.
