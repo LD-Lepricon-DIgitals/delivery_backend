@@ -10,3 +10,13 @@ type Dish struct {
 	Rating      int     `json:"dish_rating" validation:"required"`
 	Category    string  `json:"dish_category" validation:"required"`
 }
+
+type ChangeDishPayload struct {
+	Id          int     `json:"id" binding:"required"`
+	Name        string  `json:"dish_name" binding:"required"`
+	Price       float64 `json:"dish_price" binding:"required"`
+	Weight      float64 `json:"dish_weight" binding:"required"`
+	Description string  `json:"dish_description" binding:"required"`
+	Photo       string  `json:"dish_photo" binding:"required"`
+	Category    int     `json:"dish_category" binding:"required"`
+}

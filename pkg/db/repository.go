@@ -39,7 +39,7 @@ type DishServices interface {
 	AddDish(models.Dish) (int, error)
 	GetDishes() ([]models.Dish, error)
 	DeleteDish(id int) error
-	ChangeDish(id int, dish models.Dish) error
+	ChangeDish(dish models.ChangeDishPayload) error
 	GetDishesByCategory(category string) ([]models.Dish, error)
 	GetDishById(id int) (models.Dish, error)
 	SearchByName(name string) ([]models.Dish, error)

@@ -83,16 +83,6 @@ func (h *Handlers) DeleteDish(ctx fiber.Ctx) error {
 	return ctx.SendStatus(fiber.StatusOK)
 }
 
-type ChangeDishPayload struct {
-	Id          int     `json:"id" binding:"required"`
-	Name        string  `json:"dish_name" binding:"required"`
-	Price       float64 `json:"dish_price" binding:"required"`
-	Weight      float64 `json:"dish_weight" binding:"required"`
-	Description string  `json:"dish_description" binding:"required"`
-	Photo       string  `json:"dish_photo" binding:"required"`
-	Category    int     `json:"dish_category" binding:"required"`
-}
-
 // ChangeDish godoc
 // @Summary Update dish details
 // @Description Update the details of an existing dish
@@ -111,12 +101,15 @@ func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	var payload ChangeDishPayload
+	var payload models.ChangeDishPayload
 	err = ctx.Bind().Body(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
-	err = h.services.ChangeDish(payload.Id, payload.Name, payload.Price, payload.Weight, payload.Description, payload.Photo, payload.Category)
+	if payload.Id <= 0 {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid id")
+	}
+	err = h.services.ChangeDish(payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to change dish")
 	}

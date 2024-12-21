@@ -39,8 +39,8 @@ func (d *DishService) DeleteDish(id int) error {
 	return nil
 }
 
-func (d *DishService) ChangeDish(id int, dish models.Dish) error {
-	err := d.repo.ChangeDish(id, dish)
+func (d *DishService) ChangeDish(dish models.ChangeDishPayload) error {
+	err := d.repo.ChangeDish(dish)
 	if err != nil {
 		return err
 	}

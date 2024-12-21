@@ -146,7 +146,7 @@ func (d *DishService) DeleteDish(id int) error {
 }
 
 // Update an existing dish
-func (d *DishService) ChangeDish(id int, dish models.Dish) error {
+func (d *DishService) ChangeDish(dish models.ChangeDishPayload) error {
 	// Begin the transaction
 	tx, err := d.db.Begin()
 	if err != nil {
@@ -161,7 +161,7 @@ func (d *DishService) ChangeDish(id int, dish models.Dish) error {
 			dish_description = $4, dish_photo = $5, 
 			dish_category = (SELECT id FROM dish_categories WHERE category_name = $6)
 		WHERE id = $7`,
-		dish.Name, dish.Price, dish.Weight, dish.Description, dish.Photo, dish.Category, id,
+		dish.Name, dish.Price, dish.Weight, dish.Description, dish.Photo, dish.Category, dish.Id,
 	)
 	if err != nil {
 		tx.Rollback()
@@ -172,7 +172,7 @@ func (d *DishService) ChangeDish(id int, dish models.Dish) error {
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected == 0 {
 		tx.Rollback()
-		return fmt.Errorf("dish with id %d not found or no changes made", id)
+		return fmt.Errorf("dish with id %d not found or no changes made", dish.Id)
 	}
 
 	// Commit the transaction
