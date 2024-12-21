@@ -115,7 +115,7 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 		Value:       token,
 		Partitioned: true,
 		SameSite:    "None",
-		Secure:      true,
+		Secure:      false,
 	}
 	c.Cookie(&cookie)
 	return c.SendStatus(fiber.StatusOK)
