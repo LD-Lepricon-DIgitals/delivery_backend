@@ -46,6 +46,7 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 		Partitioned: true,
 		SameSite:    "None",
 		Secure:      false,
+		HTTPOnly:    true,
 	}
 
 	c.Cookie(cookie)
@@ -116,6 +117,7 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 		Partitioned: true,
 		SameSite:    "None",
 		Secure:      false,
+		HTTPOnly:    true,
 	}
 	c.Cookie(&cookie)
 	return c.SendStatus(fiber.StatusOK)
