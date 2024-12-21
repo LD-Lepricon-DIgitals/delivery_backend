@@ -45,7 +45,7 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 		Value:       token,
 		Partitioned: true,
 		SameSite:    "None",
-		Secure:      true,
+		Secure:      false,
 	}
 
 	c.Cookie(cookie)
