@@ -68,11 +68,11 @@ func (s *Server) InitRoutes() {
 	dishes := api.Group("/dishes")
 	s.initDishRoutes(dishes)
 
-	secureAdmin := api.Group("/secure", s.mdl.AdminAuthMiddleware)
+	secureAdmin := dishes.Group("/admin", s.mdl.AdminAuthMiddleware)
 	s.initAdminRoutes(secureAdmin)
 
-	secureUserOrder := api.Group("/user", s.mdl.AuthMiddleware)
-	s.initUserOrderRoutes(secureUserOrder)
+	orders := api.Group("/orders", s.mdl.AuthMiddleware)
+	s.initOrderRoutes(orders)
 }
 
 func (s *Server) initAuthRoutes(group fiber.Router) {
@@ -104,10 +104,13 @@ func (s *Server) initAdminRoutes(group fiber.Router) {
 	group.Post("/add_category", s.h.AddCategory)
 }
 
-func (s *Server) initUserOrderRoutes(group fiber.Router) {
-	group.Post("/create_order", s.h.CreateOrderHandler)
-	group.Delete("/delete_order/:orderId", s.h.DeleteOrder)
-	group.Get("/orders", s.h.GetUserOrders)
+func (s *Server) initOrderRoutes(group fiber.Router) {
+	group.Post("/create", s.h.CreateOrder)
+	group.Get("/", s.h.GetOrders)
+	group.Get("order/:order_id", s.h.GetOrderDetails)
+	group.Post("confirm/:order_id", s.h.ConfirmOrder)
+	group.Post("finish/:order_id", s.h.FinishOrder)
+
 }
 
 func (s *Server) Stop() {

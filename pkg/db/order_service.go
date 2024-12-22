@@ -12,186 +12,235 @@ type OrderService struct {
 	db *sqlx.DB
 }
 
-// NewOrderService creates a new instance of order service
-func NewOrderService(db *sqlx.DB) *OrderService {
-	return &OrderService{
-		db: db,
-	}
-}
+func (o OrderService) GetOrderDetails(orderId int) (models.OrderDetails, error) {
 
-// CreateOrder adds a new order of type models.CreateOrder to database
-func (o *OrderService) CreateOrder(order models.CreateOrder) (int, error) {
-	orderId := 0
-
+	var order models.OrderDetails
+	var orderDish models.OrderDish
+	var userId int
 	tx, err := o.db.Begin()
-	if err != nil {
-		return 0, fmt.Errorf("failed to begin transaction: %w", err)
-	}
 
-	err = tx.QueryRow("INSERT INTO orders (customer_id,order_price) VALUES ($1,$2) RETURNING order_id", order.CustomerId, order.Price).Scan(&orderId)
+	if err != nil {
+		return models.OrderDetails{}, err
+	}
+	err = tx.QueryRow("SELECT customer_id,order_price,order_status FROM orders WHERE id=$1", orderId).Scan(&userId, &order.OrderPrice, &order.OrderStatus)
+
 	if err != nil {
 		tx.Rollback()
-		return 0, fmt.Errorf("failed to insert into orders table: %w", err)
+		return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+	}
+
+	// getting dishes
+
+	rows, err := tx.Query("SELECT dish_id, dish_quantity FROM order_dishes WHERE order_id = $1", orderId)
+
+	if err != nil {
+		tx.Rollback()
+		return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+	}
+	if rows.Err() != nil {
+		tx.Rollback()
+		return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&orderDish.DishId, &orderDish.Quantity)
+		if err != nil {
+			tx.Rollback()
+			return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+		}
+		err = o.db.QueryRow("SELECT dish_name,dish_photo FROM dishes WHERE id=$1", orderDish.DishId).Scan(&orderDish.DishName, &orderDish.DishPhoto)
+		if err != nil {
+			tx.Rollback()
+			return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+		}
+		order.Dishes = append(order.Dishes, orderDish)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+	}
+
+	userDetails, err := o.getUserInfo(userId)
+	if err != nil {
+		return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+	}
+
+	order.UserLogin = userDetails.UserLogin
+	order.UserSurname = userDetails.Surname
+	order.UserName = userDetails.Name
+	order.UserPhotoUrl = userDetails.Photo
+
+	return order, nil
+}
+
+func (o OrderService) CreateOrder(order models.CreateOrder) error {
+
+	var orderId int
+	tx, err := o.db.Begin()
+	if err != nil {
+		return errors.New("error creating order: " + err.Error())
+	}
+
+	err = tx.QueryRow("INSERT INTO orders (customer_id, order_price, order_status) VALUES ($1, $2, $3) RETURNING id", order.CustomerId, order.Price, "pending").Scan(&orderId)
+	if err != nil {
+		tx.Rollback()
+		return errors.New("error creating order: " + err.Error())
 	}
 
 	for _, dish := range order.Dishes {
 		_, err = tx.Exec("INSERT INTO order_dishes (order_id,dish_id,dish_quantity) VALUES ($1,$2,$3)", orderId, dish.DishId, dish.Quantity)
-
 		if err != nil {
 			tx.Rollback()
-			return 0, fmt.Errorf("failed to insert into orders table: %w", err)
+			return errors.New("error creating order_dishes: " + err.Error())
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		return 0, fmt.Errorf("failed to commit transaction: %w", err)
-	}
-	return orderId, nil
-
-}
-
-// GetOrder returns an order models.Order by id
-func (o *OrderService) GetOrder(orderId int) (models.Order, error) {
-	order := models.Order{}
-
-	tx, err := o.db.Begin()
-	if err != nil {
-		return models.Order{}, fmt.Errorf("failed to begin transaction: %w", err)
-	}
-
-	err = tx.QueryRow("SELECT * FROM orders WHERE order_id = $1", orderId).Scan(&order)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return models.Order{}, fmt.Errorf("order not found with id %d", orderId)
-		}
-		return models.Order{}, fmt.Errorf("failed to query orders table: %w", err)
-	}
-
-	rows, err := tx.Query("SELECT dish_id, dish_quantity FROM order_dishes WHERE order_id = $1", orderId)
-	if err != nil {
-		return models.Order{}, fmt.Errorf("failed to query order_dishes table: %w", err)
-	}
-	defer rows.Close()
-
-	var dishes []models.OrderDish
-	for rows.Next() {
-		var dish models.OrderDish
-		if err := rows.Scan(&dish.DishId, &dish.Quantity); err != nil {
-			return models.Order{}, fmt.Errorf("failed to scan dish data: %w", err)
-		}
-		dishes = append(dishes, dish)
-	}
-
-	if err = rows.Err(); err != nil {
-		return order, fmt.Errorf("error occurred while iterating over order_dishes rows: %w", err)
-	}
-
-	order.Dishes = dishes
-
-	if err = tx.Commit(); err != nil {
-		return models.Order{}, fmt.Errorf("failed to commit transaction: %w", err)
-	}
-	return order, nil
-}
-
-// GetUsersOrders returns all user`s orders
-func (o *OrderService) GetUsersOrders(userId int) ([]models.Order, error) {
-
-	var orders []models.Order
-	tx, err := o.db.Begin()
-	if err != nil {
-		return nil, fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	rows, err := tx.Query("SELECT * FROM orders WHERE customer_id = $1", userId)
-
-	defer rows.Close()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get user orders: %w", err)
-	}
-
-	for rows.Next() {
-		var order models.Order
-		if err = rows.Scan(&order); err != nil {
-			return nil, fmt.Errorf("failed to get order: %w", err)
-		}
-		orders = append(orders, order)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("failed to get user orders: %w", err)
-	}
-
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return orders, nil
-}
-
-// DeleteOrder deletes order
-func (o *OrderService) DeleteOrder(orderId int) error {
-	tx, err := o.db.Begin()
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	_, err = tx.Exec("DELETE FROM orders WHERE order_id = $1", orderId)
-	if err != nil {
-		return fmt.Errorf("failed to delete order: %w", err)
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
+		return errors.New("error creating order: " + err.Error())
 	}
 	return nil
 }
 
-// GetWorkerOrders returns all orders to worker
-func (o *OrderService) GetWorkerOrders(workerId int) ([]models.Order, error) {
-	var orders []models.Order
+func (o OrderService) FinishOrder(orderId, workerId int) error {
 	tx, err := o.db.Begin()
 	if err != nil {
-		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+		return errors.New("error starting transaction: " + err.Error())
+	}
+	defer tx.Rollback()
+
+	// Check if the order is assigned to the worker
+	var assignedWorkerId int
+	err = tx.QueryRow("SELECT worker_id FROM orders WHERE id = $1", orderId).Scan(&assignedWorkerId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.New("order not found")
+		}
+		return errors.New("error checking worker_id: " + err.Error())
 	}
 
-	rows, err := tx.Query("SELECT * FROM orders WHERE worker_id = $1", workerId)
+	if assignedWorkerId != workerId {
+		return errors.New("order is not assigned to this worker")
+	}
+
+	// Update the order status to finished
+	_, err = tx.Exec("UPDATE orders SET order_status = 'finished' WHERE id = $1", orderId)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get worker orders: %w", err)
+		return errors.New("error finishing order: " + err.Error())
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return errors.New("error committing transaction: " + err.Error())
+	}
+
+	return nil
+}
+
+func (o OrderService) StartOrder(orderId int, workerId int) error {
+	tx, err := o.db.Begin()
+	if err != nil {
+		return errors.New("error starting transaction: " + err.Error())
+	}
+	defer tx.Rollback()
+
+	// Check if the order has a worker assigned
+	var currentWorkerId *int
+	err = tx.QueryRow("SELECT worker_id FROM orders WHERE id = $1", orderId).Scan(&currentWorkerId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.New("order not found")
+		}
+		return errors.New("error checking worker_id: " + err.Error())
+	}
+
+	if currentWorkerId != nil {
+		return errors.New("order already assigned to a worker")
+	}
+
+	// Update the worker_id for the order
+	_, err = tx.Exec("UPDATE orders SET worker_id = $1, order_status = 'in_process' WHERE id = $2", workerId, orderId)
+	if err != nil {
+		return errors.New("error assigning worker to order: " + err.Error())
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return errors.New("error committing transaction: " + err.Error())
+	}
+
+	return nil
+}
+
+func NewOrderService(db *sqlx.DB) *OrderService {
+	return &OrderService{db: db}
+}
+
+func (o OrderService) GetOrders(workerId int) ([]models.OrderInfo, error) {
+	var ordersInfo []models.OrderInfo
+
+	// Query to fetch free orders and worker orders in a single query
+	rows, err := o.db.Query(`
+        SELECT id, customer_id,order_status 
+        FROM orders 
+        WHERE order_status = 'pending' OR (worker_id = $1 AND order_status = 'in_process')
+    `, workerId)
+	if err != nil {
+		return nil, errors.New("error getting orders: " + err.Error())
 	}
 	defer rows.Close()
 
+	// Iterate over the result set
 	for rows.Next() {
-		var order models.Order
-		if err = rows.Scan(&order); err != nil {
-			return nil, fmt.Errorf("failed to get worker orders: %w", err)
+		var orderInfo models.OrderInfo
+		var userId int
+		if err := rows.Scan(&orderInfo.OrderId, &userId, &orderInfo.OrderStatus); err != nil {
+			return nil, errors.New("error scanning orders: " + err.Error())
 		}
 
-		orders = append(orders, order)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("failed to get worker orders: %w", err)
+		// Retrieve user info for the customer
+		userInfo, err := o.getUserInfo(userId)
+		if err != nil {
+			return nil, errors.New("error getting user info: " + err.Error())
+		}
+		orderInfo.UserLogin = userInfo.UserLogin
+		orderInfo.UserPhoto = userInfo.Photo
+		orderInfo.Address = userInfo.Address
+
+		// Append the order info to the list
+		ordersInfo = append(ordersInfo, orderInfo)
 	}
 
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	// Check for iteration errors
+	if rows.Err() != nil {
+		return nil, errors.New("error iterating orders: " + err.Error())
 	}
-	return orders, nil
+
+	return ordersInfo, nil
+
 }
 
-func (o *OrderService) GetOrderCustomer(orderId int) (int, error) {
-	customerId := 0
+func (o OrderService) getUserInfo(userId int) (models.UserOrderInfo, error) {
+	var userInfo models.UserOrderInfo
 	tx, err := o.db.Begin()
 	if err != nil {
-		return 0, fmt.Errorf("failed to begin transaction: %w", err)
+		return models.UserOrderInfo{}, err
 	}
 
-	err = tx.QueryRow("SELECT customer_id FROM orders WHERE order_id = $1", orderId).Scan(&customerId)
+	err = tx.QueryRow("SELECT user_login FROM users WHERE id = $1", userId).Scan(&userInfo.UserLogin)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 0, fmt.Errorf("order not found with id %d", orderId)
-		}
-		return 0, fmt.Errorf("failed to query order customer table: %w", err)
+		tx.Rollback()
+		return models.UserOrderInfo{}, err
 	}
-	if err = tx.Commit(); err != nil {
-		return 0, fmt.Errorf("failed to commit transaction: %w", err)
+
+	err = tx.QueryRow("SELECT user_name, user_surname,user_photo,user_address FROM users_info WHERE user_id = $1", userId).Scan(&userInfo.Name, &userInfo.Surname, &userInfo.Photo, &userInfo.Address)
+	if err != nil {
+		tx.Rollback()
+		return models.UserOrderInfo{}, err
 	}
-	return customerId, nil
+
+	if err := tx.Commit(); err != nil {
+		return models.UserOrderInfo{}, err
+	}
+	return userInfo, nil
 }

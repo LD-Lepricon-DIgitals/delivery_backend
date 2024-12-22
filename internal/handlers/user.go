@@ -45,7 +45,8 @@ func (h *Handlers) RegisterUser(c fiber.Ctx) error {
 		Value:       token,
 		Partitioned: true,
 		SameSite:    "None",
-		Secure:      true,
+		Secure:      false,
+		HTTPOnly:    true,
 	}
 
 	c.Cookie(cookie)
@@ -115,7 +116,8 @@ func (h *Handlers) LoginUser(c fiber.Ctx) error {
 		Value:       token,
 		Partitioned: true,
 		SameSite:    "None",
-		Secure:      true,
+		Secure:      false,
+		HTTPOnly:    true,
 	}
 	c.Cookie(&cookie)
 	return c.SendStatus(fiber.StatusOK)
@@ -296,5 +298,5 @@ func verifyUserToken(c fiber.Ctx) (int, string, error) {
 		return 0, "", fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user role").Error())
 	}
 
-	return userId, "", nil
+	return userId, userRole, nil
 }
