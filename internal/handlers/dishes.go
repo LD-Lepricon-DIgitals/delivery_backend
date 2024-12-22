@@ -18,13 +18,17 @@ import (
 // @Failure 500 {object} models.APIError "Failed to retrieve dishes"
 // @Router /api/dishes [get]
 func (h *Handlers) GetDishes(ctx fiber.Ctx) error {
+	log.Println("Handler: GetDishes - Start")
 	dishes, err := h.services.GetDishes()
 	if err != nil {
+		log.Printf("Handler: GetDishes - Failed to get dishes: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get dishes")
 	}
 	if len(dishes) == 0 {
+		log.Println("Handler: GetDishes - No dishes found")
 		return fiber.NewError(fiber.StatusNotFound, "Not found")
 	}
+	log.Println("Handler: GetDishes - Successfully retrieved dishes")
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
 
@@ -41,22 +45,27 @@ func (h *Handlers) GetDishes(ctx fiber.Ctx) error {
 // @Failure 500 {object} models.APIError "Failed to add dish"
 // @Router /api/dishes/admin/add [post]
 func (h *Handlers) AddDish(ctx fiber.Ctx) error {
-	err := validateAdmin(ctx)
-	if err != nil {
+	log.Println("Handler: AddDish - Start")
+	if err := validateAdmin(ctx); err != nil {
+		log.Printf("Handler: AddDish - Admin validation failed: %v", err)
 		return err
 	}
+
 	var payload models.Dish
-	err = ctx.Bind().JSON(&payload)
-	if err != nil {
+	if err := ctx.Bind().JSON(&payload); err != nil {
+		log.Printf("Handler: AddDish - Failed to parse request body: %v", err)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
+
+	log.Printf("Handler: AddDish - Payload: %+v", payload)
 	id, err := h.services.AddDish(payload)
 	if err != nil {
+		log.Printf("Handler: AddDish - Failed to add dish: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to add dish")
 	}
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"id": id,
-	})
+
+	log.Printf("Handler: AddDish - Dish added successfully with ID: %d", id)
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"id": id})
 }
 
 // DeleteDish godoc
@@ -70,16 +79,26 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 // @Failure 500 {object} models.APIError "Failed to delete dish"
 // @Router /api/dishes/admin/delete/{id} [delete]
 func (h *Handlers) DeleteDish(ctx fiber.Ctx) error {
-	err := validateAdmin(ctx)
-	if err != nil {
+	log.Println("Handler: DeleteDish - Start")
+	if err := validateAdmin(ctx); err != nil {
+		log.Printf("Handler: DeleteDish - Admin validation failed: %v", err)
 		return err
 	}
+
 	dishId := ctx.Params("id")
+	log.Printf("Handler: DeleteDish - Dish ID: %s", dishId)
 	id, err := strconv.Atoi(dishId)
-	err = h.services.DeleteDish(id)
 	if err != nil {
+		log.Printf("Handler: DeleteDish - Invalid dish ID: %s", dishId)
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid dish ID")
+	}
+
+	if err := h.services.DeleteDish(id); err != nil {
+		log.Printf("Handler: DeleteDish - Failed to delete dish: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to delete dish by id")
 	}
+
+	log.Printf("Handler: DeleteDish - Dish deleted successfully with ID: %d", id)
 	return ctx.SendStatus(fiber.StatusOK)
 }
 
@@ -96,23 +115,30 @@ func (h *Handlers) DeleteDish(ctx fiber.Ctx) error {
 // @Failure 500 {object} models.APIError "Failed to update dish"
 // @Router /api/dishes/admin/update [put]
 func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
-
-	err := validateAdmin(ctx)
-	if err != nil {
+	log.Println("Handler: ChangeDish - Start")
+	if err := validateAdmin(ctx); err != nil {
+		log.Printf("Handler: ChangeDish - Admin validation failed: %v", err)
 		return err
 	}
+
 	var payload models.ChangeDishPayload
-	err = ctx.Bind().JSON(&payload)
-	if err != nil {
+	if err := ctx.Bind().JSON(&payload); err != nil {
+		log.Printf("Handler: ChangeDish - Failed to parse request body: %v", err)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
+
+	log.Printf("Handler: ChangeDish - Payload: %+v", payload)
 	if payload.Id <= 0 {
+		log.Printf("Handler: ChangeDish - Invalid dish ID in payload: %d", payload.Id)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid id")
 	}
-	err = h.services.ChangeDish(payload)
-	if err != nil {
+
+	if err := h.services.ChangeDish(payload); err != nil {
+		log.Printf("Handler: ChangeDish - Failed to change dish: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to change dish")
 	}
+
+	log.Printf("Handler: ChangeDish - Dish updated successfully with ID: %d", payload.Id)
 	return ctx.SendStatus(fiber.StatusOK)
 }
 
@@ -133,19 +159,26 @@ type GetDishesByCategoryPayload struct {
 // @Failure 500 {object} models.APIError "Failed to retrieve dishes"
 // @Router /api/dishes/by_category [post]
 func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
+	log.Println("Handler: GetDishesByCategory - Start")
 	var payload GetDishesByCategoryPayload
-	err := ctx.Bind().JSON(&payload)
-	if err != nil {
+	if err := ctx.Bind().JSON(&payload); err != nil {
+		log.Printf("Handler: GetDishesByCategory - Failed to parse request body: %v", err)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
+
+	log.Printf("Handler: GetDishesByCategory - Category: %s", payload.Category)
 	dishes, err := h.services.GetDishesByCategory(payload.Category)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Printf("Handler: GetDishesByCategory - Failed to get dishes: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get dishes by category")
 	}
+
 	if len(dishes) == 0 {
+		log.Printf("Handler: GetDishesByCategory - No dishes found for category: %s", payload.Category)
 		return fiber.NewError(fiber.StatusNotFound, "Dishes not found")
 	}
+
+	log.Printf("Handler: GetDishesByCategory - Successfully retrieved dishes for category: %s", payload.Category)
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
 
@@ -160,16 +193,22 @@ func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
 // @Failure 500 {object} models.APIError "Failed to retrieve dish"
 // @Router /api/dishes/by_id/{dish_id} [get]
 func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
+	log.Println("Handler: GetDishById - Start")
 	dishId := ctx.Params("dish_id")
 	id, err := strconv.Atoi(dishId)
 	if err != nil {
+		log.Printf("Handler: GetDishById - Invalid parameter 'dish_id': %s", dishId)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid parameter 'dish_id'")
 	}
+
+	log.Printf("Handler: GetDishById - Fetching dish with ID: %d", id)
 	dish, err := h.services.GetDishById(id)
 	if err != nil {
-		log.Printf("Error getting dishes: %v", err)
+		log.Printf("Handler: GetDishById - Error getting dish: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get dish by id")
 	}
+
+	log.Printf("Handler: GetDishById - Successfully retrieved dish with ID: %d", id)
 	return ctx.Status(fiber.StatusOK).JSON(dish)
 }
 
@@ -184,17 +223,26 @@ func (h *Handlers) GetDishById(ctx fiber.Ctx) error {
 // @Failure 500 {object} models.APIError "Failed to search dishes"
 // @Router /api/dishes/search [get]
 func (h *Handlers) SearchByName(ctx fiber.Ctx) error {
+	log.Println("Handler: SearchByName - Start")
 	name := ctx.Query("name")
 	if name == "" {
+		log.Println("Handler: SearchByName - Query parameter 'name' is missing")
 		return fiber.NewError(fiber.StatusBadRequest, "Query parameter 'name' is required")
 	}
+
+	log.Printf("Handler: SearchByName - Searching for dishes with name containing: %s", name)
 	dishes, err := h.services.SearchByName(name)
 	if err != nil {
+		log.Printf("Handler: SearchByName - Error searching by name: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to search by name")
 	}
-	if dishes == nil {
+
+	if dishes == nil || len(dishes) == 0 {
+		log.Printf("Handler: SearchByName - No dishes found for name: %s", name)
 		return fiber.NewError(fiber.StatusNotFound, "Dish not found")
 	}
+
+	log.Printf("Handler: SearchByName - Successfully found %d dishes", len(dishes))
 	return ctx.Status(fiber.StatusOK).JSON(dishes)
 }
 
@@ -226,16 +274,22 @@ type AddDishCategoryPayload struct {
 // @Failure 500 {object} models.APIError "Failed to create category"
 // @Router /api/categories [post]
 func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
+	log.Println("Handler: AddCategory - Start")
 	var payload AddDishCategoryPayload
-	err := ctx.Bind().JSON(&payload)
-	if err != nil {
+	if err := ctx.Bind().JSON(&payload); err != nil {
+		log.Printf("Handler: AddCategory - Invalid request body: %v", err)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
+
+	log.Printf("Handler: AddCategory - Adding category: %s", payload.CategoryName)
 	id, err := h.services.AddCategory(payload.CategoryName)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed create category")
+		log.Printf("Handler: AddCategory - Failed to create category: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to create category")
 	}
-	return ctx.Status(fiber.StatusCreated).JSON(id)
+
+	log.Printf("Handler: AddCategory - Successfully created category with ID: %d", id)
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"id": id})
 }
 
 // GetCategories godoc
@@ -247,9 +301,13 @@ func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
 // @Failure 500 {object} models.APIError "Failed to retrieve categories"
 // @Router /api/categories [get]
 func (h *Handlers) GetCategories(ctx fiber.Ctx) error {
+	log.Println("Handler: GetCategories - Start")
 	categories, err := h.services.GetCategories()
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed get categories")
+		log.Printf("Handler: GetCategories - Failed to retrieve categories: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve categories")
 	}
+
+	log.Printf("Handler: GetCategories - Successfully retrieved %d categories", len(categories))
 	return ctx.Status(fiber.StatusOK).JSON(categories)
 }
