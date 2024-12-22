@@ -61,6 +61,16 @@ func (o OrderService) GetOrderDetails(orderId int) (models.OrderDetails, error) 
 		return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
 	}
 
+	userDetails, err := o.getUserInfo(userId)
+	if err != nil {
+		return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
+	}
+
+	order.UserLogin = userDetails.UserLogin
+	order.UserSurname = userDetails.Surname
+	order.UserName = userDetails.Name
+	order.UserPhotoUrl = userDetails.Photo
+
 	return order, nil
 }
 
@@ -194,7 +204,7 @@ func (o OrderService) GetOrders(workerId int) ([]models.OrderInfo, error) {
 			return nil, errors.New("error getting user info: " + err.Error())
 		}
 		orderInfo.UserLogin = userInfo.UserLogin
-		orderInfo.UserPhoto = userInfo.UserLogin
+		orderInfo.UserPhoto = userInfo.Photo
 		orderInfo.Address = userInfo.Address
 
 		// Append the order info to the list
