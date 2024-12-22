@@ -39,7 +39,7 @@ func (d *DishService) DeleteDish(id int) error {
 	if err != nil {
 		return fmt.Errorf("error creating transaction: %s", err.Error())
 	}
-	rows, err := tx.Exec("DELETE FROM dishes WHERE id=?", id)
+	rows, err := tx.Exec("DELETE FROM dishes WHERE id=$1", id)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("error deleting dishes: %s", err.Error())
@@ -65,7 +65,7 @@ func (d *DishService) ChangeDish(dish models.ChangeDishPayload) error {
 		return fmt.Errorf("error creating transaction: %s", err.Error())
 	}
 
-	rows, err := tx.Exec("UPDATE dishes SET (dish_name,dish_description,dish_price,dish_weight,dish_photo,dish_rating,dish_category) VALUES ($1,$2,$3,$4,$5,$6,$7) WHERE id=$8", dish.Name, dish.Description, dish.Price, dish.Weight, dish.Photo, dish.Rating, dish.Category, dish.Id)
+	rows, err := tx.Exec("UPDATE dishes SET dish_name = $1, dish_description = $2, dish_price = $3, dish_weight = $4, dish_photo = $5, dish_rating = $6, dish_category = $7 WHERE id = $8", dish.Name, dish.Description, dish.Price, dish.Weight, dish.Photo, dish.Rating, dish.Category, dish.Id)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("error updating dish: %s", err.Error())
