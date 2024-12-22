@@ -94,7 +94,7 @@ func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error
 			dishes.dish_category 
 		FROM dishes 
 		INNER JOIN dish_categories ON dishes.dish_category = dish_categories.category_name 
-		WHERE dish_categories.name = $1`
+		WHERE dish_categories.category_name = $1`
 	rows, err := d.db.Queryx(query, category)
 	if err != nil {
 		return nil, fmt.Errorf("error getting dishes: %s", err.Error())
