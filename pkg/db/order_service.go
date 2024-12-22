@@ -49,7 +49,7 @@ func (o OrderService) GetOrderDetails(orderId int) (models.OrderDetails, error) 
 			tx.Rollback()
 			return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))
 		}
-		err = o.db.QueryRow("SELECT dish_name FROM dishes WHERE id=$1", orderDish.DishId).Scan(&orderDish.DishName)
+		err = o.db.QueryRow("SELECT dish_name,dish_photo FROM dishes WHERE id=$1", orderDish.DishId).Scan(&orderDish.DishName, &orderDish.DishPhoto)
 		if err != nil {
 			tx.Rollback()
 			return models.OrderDetails{}, errors.New(fmt.Sprintf("failed to fetch order details: %s", err.Error()))

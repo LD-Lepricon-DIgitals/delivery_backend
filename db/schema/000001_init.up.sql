@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS dishes
     dish_weight      float NOT NULL,
     dish_photo       text  NOT NULL,
     dish_rating      float,
-    dish_category    int   NOT NULL,
-    CONSTRAINT fk_dish_category FOREIGN KEY (dish_category) REFERENCES dish_categories (id) ON DELETE CASCADE
+    dish_category    text   NOT NULL,
+    CONSTRAINT fk_dish_category FOREIGN KEY (dish_category) REFERENCES dish_categories (category_name) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS reviews
@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS order_dishes
     order_id      int PRIMARY KEY NOT NULL,
     dish_id       int             NOT NULL,
     dish_quantity int             NOT NULL,
+    PRIMARY KEY (order_id, dish_id),
     CONSTRAINT fk_order_id FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
     CONSTRAINT fk_dish_id FOREIGN KEY (dish_id) REFERENCES dishes (id) ON DELETE CASCADE
 );
