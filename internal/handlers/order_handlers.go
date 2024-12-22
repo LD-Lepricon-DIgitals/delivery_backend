@@ -145,7 +145,7 @@ func (h *Handlers) ConfirmOrder(ctx fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, fmt.Sprintf("got %s role, expected worker", role))
 	}
 
-	err = h.services.ConfirmOrder(orderId, workerId)
+	err = h.services.StartOrder(orderId, workerId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
