@@ -9,28 +9,24 @@ type OrderService struct {
 	repo *db.Repository
 }
 
-func (o OrderService) GetWorkerOrders(workerId int) ([]models.Order, error) {
-	return o.repo.GetWorkerOrders(workerId)
+func (o OrderService) GetOrderDetails(orderId int) (models.OrderDetails, error) {
+	return o.repo.GetOrderDetails(orderId)
 }
 
-func (o OrderService) CreateOrder(order models.CreateOrder) (int, error) {
+func (o OrderService) CreateOrder(order models.CreateOrder) error {
 	return o.repo.CreateOrder(order)
 }
 
-func (o OrderService) GetOrder(orderId int) (models.Order, error) {
-	return o.repo.GetOrder(orderId)
+func (o OrderService) GetOrders(workerId int) ([]models.OrderInfo, error) {
+	return o.repo.GetOrders(workerId)
 }
 
-func (o OrderService) DeleteOrder(orderId int) error {
-	return o.repo.DeleteOrder(orderId)
+func (o OrderService) FinishOrder(orderId, workerId int) error {
+	return o.repo.FinishOrder(orderId, workerId)
 }
 
-func (o OrderService) GetUsersOrders(i int) ([]models.Order, error) {
-	return o.repo.GetUsersOrders(i)
-}
-
-func (o OrderService) GetOrderCustomer(orderId int) (int, error) {
-	return o.repo.GetOrderCustomer(orderId)
+func (o OrderService) StartOrder(orderId int, workerId int) error {
+	return o.repo.StartOrder(orderId, workerId)
 }
 
 func NewOrderService(repo *db.Repository) *OrderService {

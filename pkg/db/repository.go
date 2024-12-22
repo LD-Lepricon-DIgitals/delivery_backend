@@ -28,19 +28,18 @@ type WorkerServices interface {
 }
 
 type OrderServices interface {
-	GetWorkerOrders(workerId int) ([]models.Order, error)
-	CreateOrder(order models.CreateOrder) (int, error)
-	GetOrder(orderId int) (models.Order, error)
-	DeleteOrder(orderId int) error
-	GetUsersOrders(int) ([]models.Order, error)
-	GetOrderCustomer(orderId int) (int, error)
+	CreateOrder(order models.CreateOrder) error
+	GetOrders(workerId int) ([]models.OrderInfo, error) //includes private methods getFreeOrders and getWorkerOrders
+	FinishOrder(orderId, workerId int) error
+	StartOrder(orderId int, workerId int) error //includes isFree check
+	GetOrderDetails(orderId int) (models.OrderDetails, error)
 }
 
 type DishServices interface {
-	AddDish(name string, price, weight float64, description, photo string, category int) (int, error)
+	AddDish(models.Dish) (int, error)
 	GetDishes() ([]models.Dish, error)
 	DeleteDish(id int) error
-	ChangeDish(id int, name string, price, weight float64, description, photo string, category int) error
+	ChangeDish(dish models.ChangeDishPayload) error
 	GetDishesByCategory(category string) ([]models.Dish, error)
 	GetDishById(id int) (models.Dish, error)
 	SearchByName(name string) ([]models.Dish, error)

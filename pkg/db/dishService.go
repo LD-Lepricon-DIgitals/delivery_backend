@@ -1,7 +1,6 @@
 package db
 
 import (
-	"errors"
 	"fmt"
 	"github.com/LD-Lepricon-DIgitals/delivery_backend/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -11,165 +10,211 @@ type DishService struct {
 	db *sqlx.DB
 }
 
-func NewDishService(db *sqlx.DB) *DishService {
-	return &DishService{db: db}
-}
-
-//TODO: filter by category name
-
 func (d *DishService) GetDishes() ([]models.Dish, error) {
-	var dishes []models.Dish
-	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category= dish_categories.id;"
-	rows, err := d.db.Query(query)
+	rows, err := d.db.Queryx("SELECT * FROM dishes")
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Error getting dishes: %s", err))
+		return nil, err
+	}
+	if rows.Err() != nil || rows == nil {
+		return nil, fmt.Errorf("error getting dishes: %s", rows.Err())
 	}
 	defer rows.Close()
 
+	var dishes []models.Dish
 	for rows.Next() {
 		var dish models.Dish
-		err := rows.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating, &dish.Category)
-		if err != nil {
-			return nil, errors.New("Error getting dishes: " + err.Error())
+		if err := rows.StructScan(&dish); err != nil {
+			return nil, fmt.Errorf("error getting dishes: %s", err.Error())
 		}
 		dishes = append(dishes, dish)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, errors.New("Error iterating rows: " + err.Error())
+	if rows.Err() != nil || rows == nil {
+		return nil, fmt.Errorf("error getting dishes: %s", rows.Err())
 	}
 	return dishes, nil
 }
 
-func (d *DishService) AddDish(name string, price, weight float64, description, photo string, category int) (int, error) {
-	var id int
-	query := "INSERT INTO dishes (dish_name, dish_price, dish_weight, dish_description, dish_photo, dish_category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;"
-	row := d.db.QueryRow(query, name, price, weight, description, photo, category)
-	if err := row.Scan(&id); err != nil {
-		return 0, errors.New("Error adding dish: " + err.Error())
-	}
-	return id, nil
-}
-
 func (d *DishService) DeleteDish(id int) error {
-	query := "DELETE FROM dishes WHERE id=$1;"
-	res, err := d.db.Exec(query, id)
+	tx, err := d.db.Begin()
 	if err != nil {
-		return errors.New("Error deleting dish: " + err.Error())
+		return fmt.Errorf("error creating transaction: %s", err.Error())
 	}
-	rowsAffected, err := res.RowsAffected()
+	rows, err := tx.Exec("DELETE FROM dishes WHERE id=$1", id)
 	if err != nil {
-		return errors.New("Error after affecting rows: " + err.Error())
+		tx.Rollback()
+		return fmt.Errorf("error deleting dishes: %s", err.Error())
 	}
-	if rowsAffected == 0 {
-		return errors.New("no rows affected")
+	r, err := rows.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting dishes: %s", err.Error())
+	}
+	if r == 0 {
+		tx.Rollback()
+		return fmt.Errorf("dishes with id %d not found", id)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("error committing dishes: %s", err.Error())
 	}
 	return nil
 }
 
-func (d *DishService) ChangeDish(id int, name string, price, weight float64, description, photo string, category int) error {
-	var res int
-	checkQuery := "SELECT COUNT(1) FROM dishes WHERE id=$1;"
-	updateQuery := "UPDATE dishes SET dish_name=$1, dish_price=$2, dish_weight=$3, dish_description=$4, dish_photo=$5, dish_category=$6 WHERE id=$7;"
-	row := d.db.QueryRow(checkQuery, id)
-	if err := row.Scan(&res); err != nil {
-		return errors.New("Error checking dish count: " + err.Error())
+func (d *DishService) ChangeDish(dish models.ChangeDishPayload) error {
+	tx, err := d.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error creating transaction: %s", err.Error())
 	}
-	if res == 1 {
-		res, err := d.db.Exec(updateQuery, name, price, weight, description, photo, category, id)
-		rowsAffected, err := res.RowsAffected()
-		if err != nil {
-			return errors.New("Error after affecting rows: " + err.Error())
-		}
-		if rowsAffected == 0 {
-			return errors.New("no rows affected")
-		}
-		return nil
+
+	rows, err := tx.Exec("UPDATE dishes SET dish_name = $1, dish_description = $2, dish_price = $3, dish_weight = $4, dish_photo = $5, dish_rating = $6, dish_category = $7 WHERE id = $8", dish.Name, dish.Description, dish.Price, dish.Weight, dish.Photo, dish.Rating, dish.Category, dish.Id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error updating dish: %s", err.Error())
+	}
+	if r, _ := rows.RowsAffected(); r == 0 {
+		tx.Rollback()
+		return fmt.Errorf("dish with id %d not found", dish.Id)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("error committing dishes: %s", err.Error())
 	}
 	return nil
 }
 
 func (d *DishService) GetDishesByCategory(category string) ([]models.Dish, error) {
 	var dishes []models.Dish
-	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_price, dishes.dish_weight, dishes.dish_description, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes INNER JOIN dish_categories ON dishes.dish_category = dish_categories.id WHERE dish_categories.category_name=$1;"
-	rows, err := d.db.Query(query, category)
+	query := `
+		SELECT 
+			dishes.id, 
+			dishes.dish_name, 
+			dishes.dish_description, 
+			dishes.dish_price, 
+			dishes.dish_weight, 
+			dishes.dish_photo, 
+			dishes.dish_rating, 
+			dishes.dish_category 
+		FROM dishes 
+		INNER JOIN dish_categories ON dishes.dish_category = dish_categories.category_name 
+		WHERE dish_categories.category_name = $1`
+	rows, err := d.db.Queryx(query, category)
 	if err != nil {
-		return nil, errors.New("Error querying dishes: " + err.Error())
+		return nil, fmt.Errorf("error getting dishes: %s", err.Error())
 	}
 	defer rows.Close()
-
 	for rows.Next() {
 		var dish models.Dish
-		err := rows.Scan(&dish.Id, &dish.Name, &dish.Price, &dish.Weight, &dish.Description, &dish.PhotoUrl, &dish.Rating, &dish.Category)
-		if err != nil {
-			return nil, errors.New("Error getting dishes: " + err.Error())
+		if err := rows.StructScan(&dish); err != nil {
+			return nil, fmt.Errorf("error getting dishes: %s", err.Error())
 		}
 		dishes = append(dishes, dish)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, errors.New("Error iterating rows: " + err.Error())
+	if rows.Err() != nil || rows == nil {
+		return nil, fmt.Errorf("error getting dishes: %s", rows.Err())
 	}
 	return dishes, nil
 }
 
 func (d *DishService) GetDishById(id int) (models.Dish, error) {
-	var dish models.Dish
-	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category= dish_categories.id WHERE dishes.id=$1;"
-	row := d.db.QueryRow(query, id)
-	if err := row.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating, &dish.Category); err != nil {
-		return dish, errors.New("Error getting dish by id: " + err.Error())
+	var model models.Dish
+	rows, err := d.db.Queryx("SELECT * FROM dishes WHERE id=$1", id)
+	if err != nil {
+		return model, fmt.Errorf("error getting dish: %s", err.Error())
 	}
-	return dish, nil
+	if rows == nil {
+		return model, fmt.Errorf("dish with id %d not found", id)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.StructScan(&model)
+		if err != nil {
+			return model, fmt.Errorf("error getting dish: %s", err.Error())
+		}
+	}
+	return model, nil
 }
 
 func (d *DishService) SearchByName(name string) ([]models.Dish, error) {
 	var dishes []models.Dish
-	query := "SELECT dishes.id, dishes.dish_name, dishes.dish_description, dishes.dish_price, dishes.dish_weight, dishes.dish_photo, dishes.dish_rating, dish_categories.category_name FROM dishes LEFT JOIN dish_categories ON dishes.dish_category = dish_categories.id WHERE dishes.dish_name ILIKE $1;"
-	rows, err := d.db.Query(query, "%"+name+"%")
+	query := `
+		SELECT 
+			d.id, d.dish_name, d.dish_description, d.dish_price, 
+			d.dish_weight, d.dish_photo, d.dish_rating, c.category_name AS dish_category 
+		FROM 
+			dishes d
+		INNER JOIN 
+			dish_categories c ON d.dish_category = c.id 
+		WHERE 
+			d.dish_name ILIKE '%' || $1 || '%'`
+	rows, err := d.db.Queryx(query, name)
 	if err != nil {
-		return nil, errors.New("Error getting dishes by name: " + err.Error())
+		return nil, fmt.Errorf("error getting dishes: %s", err.Error())
 	}
-	defer rows.Close()
-
 	for rows.Next() {
 		var dish models.Dish
-		if err := rows.Scan(&dish.Id, &dish.Name, &dish.Description, &dish.Price, &dish.Weight, &dish.PhotoUrl, &dish.Rating, &dish.Category); err != nil {
-			return nil, errors.New("Error getting values from rows: " + err.Error())
+		if err := rows.StructScan(&dish); err != nil {
+			return nil, fmt.Errorf("error getting dishes: %s", err.Error())
 		}
 		dishes = append(dishes, dish)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, errors.New("Error iterating rows: " + err.Error())
+	if rows.Err() != nil || rows == nil {
+		return nil, fmt.Errorf("error getting dishes: %s", rows.Err().Error())
 	}
 	return dishes, nil
 }
 
 func (d *DishService) AddCategory(categoryName string) (int, error) {
 	var id int
-	query := "INSERT INTO categories (category_name) VALUES ($1) RETURNING id;"
-	row := d.db.QueryRow(query, categoryName)
-	if err := row.Scan(&id); err != nil {
-		return 0, errors.New("Error creating category: " + err.Error())
+	tx, err := d.db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("error creating transaction: %s", err.Error())
+	}
+	err = tx.QueryRow("INSERT INTO dish_categories (category_name) VALUES ($1) RETURNING id", categoryName).Scan(&id)
+	if err != nil {
+		tx.Rollback()
+		return 0, fmt.Errorf("error adding category: %s", err.Error())
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("error committing dishes: %s", err.Error())
 	}
 	return id, nil
 }
 
 func (d *DishService) GetCategories() ([]models.Category, error) {
 	var categories []models.Category
-	query := "SELECT * FROM categories;"
-	rows, err := d.db.Query(query)
+	rows, err := d.db.Queryx("SELECT * FROM dish_categories")
 	if err != nil {
-		return nil, errors.New("Error querying dishes: " + err.Error())
+		return nil, fmt.Errorf("error getting dish_categories: %s", err.Error())
 	}
 	for rows.Next() {
 		var category models.Category
-		err := rows.Scan(&category.Id, &category.CategoryName)
-		if err != nil {
-			return nil, errors.New("Error getting categories: " + err.Error())
+		if err := rows.StructScan(&category); err != nil {
+			return nil, fmt.Errorf("error getting dish_categories: %s", err.Error())
 		}
 		categories = append(categories, category)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, errors.New("Error iterating rows: " + err.Error())
+	if rows.Err() != nil || rows == nil {
+		return nil, fmt.Errorf("error getting categories: %s", rows.Err().Error())
 	}
 	return categories, nil
+}
+
+func NewDishService(db *sqlx.DB) *DishService {
+	return &DishService{db: db}
+}
+
+func (d *DishService) AddDish(dish models.Dish) (int, error) {
+	tx, err := d.db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("Error starting transaction: %s", err)
+	}
+	var id int
+
+	err = tx.QueryRow("INSERT INTO dishes (dish_name,dish_description,dish_price,dish_weight,dish_photo,dish_rating,dish_category) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id", dish.Name, dish.Description, dish.Price, dish.Weight, dish.Photo, dish.Rating, dish.Category).Scan(&id)
+	if err != nil {
+		tx.Rollback()
+		return 0, fmt.Errorf("Error adding dish: %s", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, fmt.Errorf("Error committing dish: %s", err)
+	}
+	return id, nil
 }
