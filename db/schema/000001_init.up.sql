@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS orders
 
 CREATE TABLE IF NOT EXISTS order_dishes
 (
-    order_id      int PRIMARY KEY NOT NULL,
+    order_id      int             NOT NULL,
     dish_id       int             NOT NULL,
     dish_quantity int             NOT NULL,
     PRIMARY KEY (order_id, dish_id),

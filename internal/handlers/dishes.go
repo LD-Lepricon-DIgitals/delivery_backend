@@ -46,7 +46,7 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 		return err
 	}
 	var payload models.Dish
-	err = ctx.Bind().Body(&payload)
+	err = ctx.Bind().JSON(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
@@ -102,7 +102,7 @@ func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
 		return err
 	}
 	var payload models.ChangeDishPayload
-	err = ctx.Bind().Body(&payload)
+	err = ctx.Bind().JSON(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
@@ -134,7 +134,7 @@ type GetDishesByCategoryPayload struct {
 // @Router /api/dishes/by_category [post]
 func (h *Handlers) GetDishesByCategory(ctx fiber.Ctx) error {
 	var payload GetDishesByCategoryPayload
-	err := ctx.Bind().Body(&payload)
+	err := ctx.Bind().JSON(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
@@ -227,7 +227,7 @@ type AddDishCategoryPayload struct {
 // @Router /api/categories [post]
 func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
 	var payload AddDishCategoryPayload
-	err := ctx.Bind().Body(&payload)
+	err := ctx.Bind().JSON(&payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
