@@ -167,7 +167,7 @@ func (d *DishService) AddCategory(categoryName string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("error creating transaction: %s", err.Error())
 	}
-	err = tx.QueryRow("INSERT INTO categories (category_name) VALUES ($1) RETURNING id", categoryName).Scan(&id)
+	err = tx.QueryRow("INSERT INTO dish_categories (category_name) VALUES ($1) RETURNING id", categoryName).Scan(&id)
 	if err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("error adding category: %s", err.Error())
@@ -180,14 +180,14 @@ func (d *DishService) AddCategory(categoryName string) (int, error) {
 
 func (d *DishService) GetCategories() ([]models.Category, error) {
 	var categories []models.Category
-	rows, err := d.db.Queryx("SELECT * FROM categories")
+	rows, err := d.db.Queryx("SELECT * FROM dish_categories")
 	if err != nil {
-		return nil, fmt.Errorf("error getting categories: %s", err.Error())
+		return nil, fmt.Errorf("error getting dish_categories: %s", err.Error())
 	}
 	for rows.Next() {
 		var category models.Category
 		if err := rows.StructScan(&category); err != nil {
-			return nil, fmt.Errorf("error getting categories: %s", err.Error())
+			return nil, fmt.Errorf("error getting dish_categories: %s", err.Error())
 		}
 		categories = append(categories, category)
 	}
