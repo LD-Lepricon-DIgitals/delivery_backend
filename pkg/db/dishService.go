@@ -198,7 +198,7 @@ func (d *DishService) GetCategories() ([]models.Category, error) {
 }
 
 func NewDishService(db *sqlx.DB) *DishService {
-	return &DishService{}
+	return &DishService{db: db}
 }
 
 func (d *DishService) AddDish(dish models.Dish) (int, error) {
