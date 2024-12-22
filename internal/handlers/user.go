@@ -298,5 +298,5 @@ func verifyUserToken(c fiber.Ctx) (int, string, error) {
 		return 0, "", fiber.NewError(fiber.StatusUnauthorized, errors.New("invalid user role").Error())
 	}
 
-	return userId, "", nil
+	return userId, userRole, nil
 }
