@@ -56,8 +56,6 @@ func (h *Handlers) AddDish(ctx fiber.Ctx) error {
 		log.Printf("Handler: AddDish - Failed to parse request body: %v", err)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
-
-	log.Printf("Handler: AddDish - Payload: %+v", payload)
 	id, err := h.services.AddDish(payload)
 	if err != nil {
 		log.Printf("Handler: AddDish - Failed to add dish: %v", err)
@@ -127,7 +125,6 @@ func (h *Handlers) ChangeDish(ctx fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
-	log.Printf("Handler: ChangeDish - Payload: %+v", payload)
 	if payload.Id <= 0 {
 		log.Printf("Handler: ChangeDish - Invalid dish ID in payload: %d", payload.Id)
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid id")
@@ -274,7 +271,6 @@ type AddDishCategoryPayload struct {
 // @Failure 500 {object} models.APIError "Failed to create category"
 // @Router /api/categories [post]
 func (h *Handlers) AddCategory(ctx fiber.Ctx) error {
-	log.Println("Handler: AddCategory - Start")
 	var payload AddDishCategoryPayload
 	if err := ctx.Bind().JSON(&payload); err != nil {
 		log.Printf("Handler: AddCategory - Invalid request body: %v", err)
